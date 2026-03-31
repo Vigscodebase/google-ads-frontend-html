@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard — Campaign Intelligence</title>
     <link rel="stylesheet" href="assets/css/shared8.css">
-    <link rel="stylesheet" href="assets/css/dashboard8.css">
+    <link rel="stylesheet" href="assets/css/dashboard11.css">
 </head>
 <body class="auth-pending">
 
@@ -36,21 +36,44 @@
         <!-- Page header -->
         <div class="page-header">
             <div>
-                <div class="page-eyebrow">Google Ads · Last 30 Days</div>
+                <div class="page-eyebrow">Google Ads</div>
                 <div class="page-title">Campaign <span>Dashboard</span></div>
             </div>
             <div class="header-chips">
-                <div class="period-chip">LAST 30 DAYS</div>
+                <div class="period-chip" id="period-chip-label">Last 30 Days</div>
                 <div class="live-chip"><span class="live-dot"></span> LIVE</div>
             </div>
         </div>
 
         <!-- Account selector -->
-        <div class="account-selector-wrap" style="margin-bottom:24px;">
+        <div class="account-selector-wrap" style="margin-bottom:16px;">
             <span class="account-selector-label">Showing campaigns for:</span>
             <select class="account-select" id="account-select">
                 <option>Loading accounts…</option>
             </select>
+        </div>
+
+        <!-- ── DATE FILTER BAR ── -->
+        <div class="date-filter-bar">
+            <span class="date-filter-label">Date Range:</span>
+            <button class="date-preset-btn" data-range="TODAY">Today</button>
+            <button class="date-preset-btn" data-range="LAST_7_DAYS">Last 7 Days</button>
+            <button class="date-preset-btn" data-range="LAST_14_DAYS">Last 14 Days</button>
+            <button class="date-preset-btn active" data-range="LAST_30_DAYS">Last 30 Days</button>
+            <button class="date-preset-btn" data-range="LAST_90_DAYS">Last 90 Days</button>
+            <button class="date-preset-btn" data-range="THIS_MONTH">This Month</button>
+            <button class="date-preset-btn" data-range="LAST_MONTH">Last Month</button>
+            <button id="date-custom-btn">Custom Range…</button>
+        </div>
+
+        <!-- Custom date range picker (hidden by default) -->
+        <div class="custom-range-wrap" id="custom-range-wrap">
+            <label>From</label>
+            <input type="date" id="date-start" />
+            <span class="custom-range-sep">→</span>
+            <label>To</label>
+            <input type="date" id="date-end" />
+            <button class="btn-apply-range" id="apply-custom-range">Apply</button>
         </div>
 
         <!-- Stats -->
@@ -58,7 +81,7 @@
             <div class="stat-card blue">
                 <div class="stat-label">Total Spend</div>
                 <div class="stat-value blue" id="stat-spend">—</div>
-                <div class="stat-sub" id="stat-spend-sub">Loading…</div>
+                <div class="stat-sub" id="stat-spend-sub">Last 30 Days</div>
             </div>
             <div class="stat-card teal">
                 <div class="stat-label">Impressions</div>
@@ -105,13 +128,13 @@
                     <div class="th">#</div>
                     <div class="th">Campaign</div>
                     <div class="th">Type</div>
-                    <div class="th">Spend (30d)</div>
+                    <div class="th">Spend</div>
                     <div class="th">Impressions</div>
                     <div class="th col-clicks">Clicks</div>
                     <div class="th col-ctr right">CTR</div>
                 </div>
                 <div id="campaign-list"></div>
-                <div class="empty-text" id="empty" style="display:none;">No campaigns found</div>
+                <div class="empty-text" id="empty" style="display:none;">No campaigns found for this date range</div>
             </div>
         </div>
 
@@ -124,6 +147,6 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-<script src="assets/js/dashboard8.js"></script>
+<script src="assets/js/dashboard15.js"></script>
 </body>
 </html>

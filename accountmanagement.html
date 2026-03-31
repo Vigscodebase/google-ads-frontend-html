@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Account Management — Campaign Intelligence</title>
     <link rel="stylesheet" href="assets/css/shared8.css">
-    <link rel="stylesheet" href="assets/css/accountmanagement8.css">
+    <link rel="stylesheet" href="assets/css/accountmanagement13.css">
 </head>
 <body class="auth-pending">
 
@@ -99,6 +99,7 @@
                     <div class="th">Account</div>
                     <div class="th">Status</div>
                     <div class="th col-cids">Customer IDs</div>
+                    <div class="th col-access">User Access</div>
                     <div class="th col-date">Added</div>
                     <div class="th right">Actions</div>
                 </div>
@@ -115,6 +116,54 @@
         </div>
 
     </main>
+</div>
+
+<!-- ══ USER ACCESS MODAL ══════════════════════════════════ -->
+<div id="access-modal">
+    <div class="access-modal-box">
+        <div class="access-modal-header">
+            <h3 id="access-modal-title">User Access</h3>
+            <button class="access-modal-close" id="access-modal-close">✕</button>
+        </div>
+        <div class="access-modal-body">
+
+            <!-- Grant access section -->
+            <div class="grant-section">
+                <div class="grant-section-title">Grant Access to User</div>
+                <div class="grant-form-row">
+                    <div class="grant-admin-wrap">
+                        <label>Admin User</label>
+                        <select class="grant-select" id="grant-admin-select">
+                            <option value="">— Select user —</option>
+                        </select>
+                    </div>
+                    <div class="grant-role-wrap">
+                        <label>Role</label>
+                        <select class="grant-select" id="grant-role-select">
+                            <option value="viewer">Viewer</option>
+                            <option value="editor">Editor</option>
+                            <option value="owner">Owner</option>
+                        </select>
+                    </div>
+                    <div style="padding-top:18px;">
+                        <button class="btn-grant" id="btn-grant-access">Grant Access</button>
+                    </div>
+                </div>
+                <div style="margin-top:10px;font-size:11px;color:var(--muted);line-height:1.6;">
+                    <strong>Viewer</strong> — read-only access to campaign data ·
+                    <strong>Editor</strong> — can manage campaigns ·
+                    <strong>Owner</strong> — full control including account settings
+                </div>
+            </div>
+
+            <!-- Current access list -->
+            <div class="roles-section-title">Current Access</div>
+            <div id="access-roles-list">
+                <div class="access-loading">Loading…</div>
+            </div>
+
+        </div>
+    </div>
 </div>
 
 <!-- Delete modal -->
@@ -141,6 +190,6 @@
     document.getElementById('footer-time').textContent =
         'Updated ' + new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
 </script>
-<script src="assets/js/accountmanagement8.js"></script>
+<script src="assets/js/accountmanagement9.js"></script>
 </body>
 </html>
