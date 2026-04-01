@@ -1,152 +1,181 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard — Campaign Intelligence</title>
-    <link rel="stylesheet" href="assets/css/shared8.css">
-    <link rel="stylesheet" href="assets/css/dashboard11.css">
-</head>
-<body class="auth-pending">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Dashboard — Campaign Intelligence</title>
+        <link rel="stylesheet" href="assets/css/shared8.css">
+        <link rel="stylesheet" href="assets/css/dashboard12.css">
+    </head>
+    <body class="auth-pending">
 
-<div class="top-rule"></div>
-<div class="layout">
+        <div class="top-rule"></div>
+        <div class="layout">
 
-    <aside class="sidebar">
-        <div class="sidebar-nav">
-            <div class="sidebar-section-label">Menu</div>
-            <a class="nav-item active" href="dashboard.html">
-                <span class="nav-icon">◫</span> Campaigns
-            </a>
-            <a class="nav-item" href="accountmanagement.html">
-                <span class="nav-icon">⊞</span> Accounts
-            </a>
-        </div>
-        <div class="sidebar-bottom">
-            <div class="admin-pill">
-                <div class="admin-avatar" id="admin-avatar">—</div>
-                <div class="admin-email"  id="admin-email">—</div>
-            </div>
-            <button class="btn-logout" id="btn-logout">Sign Out</button>
-        </div>
-    </aside>
-
-    <main class="main">
-
-        <!-- Page header -->
-        <div class="page-header">
-            <div>
-                <div class="page-eyebrow">Google Ads</div>
-                <div class="page-title">Campaign <span>Dashboard</span></div>
-            </div>
-            <div class="header-chips">
-                <div class="period-chip" id="period-chip-label">Last 30 Days</div>
-                <div class="live-chip"><span class="live-dot"></span> LIVE</div>
-            </div>
-        </div>
-
-        <!-- Account selector -->
-        <div class="account-selector-wrap" style="margin-bottom:16px;">
-            <span class="account-selector-label">Showing campaigns for:</span>
-            <select class="account-select" id="account-select">
-                <option>Loading accounts…</option>
-            </select>
-        </div>
-
-        <!-- ── DATE FILTER BAR ── -->
-        <div class="date-filter-bar">
-            <span class="date-filter-label">Date Range:</span>
-            <button class="date-preset-btn" data-range="TODAY">Today</button>
-            <button class="date-preset-btn" data-range="LAST_7_DAYS">Last 7 Days</button>
-            <button class="date-preset-btn" data-range="LAST_14_DAYS">Last 14 Days</button>
-            <button class="date-preset-btn active" data-range="LAST_30_DAYS">Last 30 Days</button>
-            <button class="date-preset-btn" data-range="LAST_90_DAYS">Last 90 Days</button>
-            <button class="date-preset-btn" data-range="THIS_MONTH">This Month</button>
-            <button class="date-preset-btn" data-range="LAST_MONTH">Last Month</button>
-            <button id="date-custom-btn">Custom Range…</button>
-        </div>
-
-        <!-- Custom date range picker (hidden by default) -->
-        <div class="custom-range-wrap" id="custom-range-wrap">
-            <label>From</label>
-            <input type="date" id="date-start" />
-            <span class="custom-range-sep">→</span>
-            <label>To</label>
-            <input type="date" id="date-end" />
-            <button class="btn-apply-range" id="apply-custom-range">Apply</button>
-        </div>
-
-        <!-- Stats -->
-        <div class="stats-grid">
-            <div class="stat-card blue">
-                <div class="stat-label">Total Spend</div>
-                <div class="stat-value blue" id="stat-spend">—</div>
-                <div class="stat-sub" id="stat-spend-sub">Last 30 Days</div>
-            </div>
-            <div class="stat-card teal">
-                <div class="stat-label">Impressions</div>
-                <div class="stat-value teal" id="stat-impr">—</div>
-                <div class="stat-sub">All campaigns</div>
-            </div>
-            <div class="stat-card coral">
-                <div class="stat-label">Total Clicks</div>
-                <div class="stat-value coral" id="stat-clicks">—</div>
-                <div class="stat-sub">All campaigns</div>
-            </div>
-            <div class="stat-card green">
-                <div class="stat-label">Active Campaigns</div>
-                <div class="stat-value green" id="stat-active">—</div>
-                <div class="stat-sub" id="stat-total-sub">of — total</div>
-            </div>
-        </div>
-
-        <!-- Toolbar -->
-        <div class="toolbar">
-            <div class="toolbar-left">
-                <span class="toolbar-title">All Campaigns</span>
-                <span class="count-chip" id="count-chip">…</span>
-            </div>
-            <div class="search-wrap">
-                <span class="search-icon">⌕</span>
-                <input type="text" id="search" placeholder="Search name or ID…"
-                    oninput="filterCampaigns(this.value)" />
-            </div>
-        </div>
-
-        <!-- Table -->
-        <div class="table-wrap">
-            <div class="state-box" id="loading">
-                <div class="spinner"></div>
-                <div class="state-label">Fetching campaigns…</div>
-            </div>
-            <div class="state-box" id="error-box" style="display:none;">
-                <div style="font-size:26px;color:var(--amber);">⚠</div>
-                <div class="error-text" id="error-msg">An error occurred.</div>
-            </div>
-            <div id="table-inner" style="display:none;">
-                <div class="table-head camp-grid">
-                    <div class="th">#</div>
-                    <div class="th">Campaign</div>
-                    <div class="th">Type</div>
-                    <div class="th">Spend</div>
-                    <div class="th">Impressions</div>
-                    <div class="th col-clicks">Clicks</div>
-                    <div class="th col-ctr right">CTR</div>
+            <aside class="sidebar">
+                <div class="sidebar-nav">
+                    <div class="sidebar-section-label">Menu</div>
+                    <a class="nav-item active" href="dashboard.html">
+                        <span class="nav-icon">◫</span> Campaigns
+                    </a>
+                    <a class="nav-item" href="accountmanagement.html">
+                        <span class="nav-icon">⊞</span> Accounts
+                    </a>
+                    <a class="nav-item" href="usermanagement.html">
+                        <span class="nav-icon">⊞</span> User Management
+                    </a>
                 </div>
-                <div id="campaign-list"></div>
-                <div class="empty-text" id="empty" style="display:none;">No campaigns found for this date range</div>
-            </div>
+                <div class="sidebar-bottom">
+                    <div class="admin-pill">
+                        <div class="admin-avatar" id="admin-avatar">—</div>
+                        <div class="admin-email" id="admin-email">—</div>
+                    </div>
+                    <button class="btn-logout" id="btn-logout">Sign Out</button>
+                </div>
+            </aside>
+
+            <main class="main">
+
+                <!-- Page header -->
+                <div class="page-header">
+                    <div>
+                        <div class="page-eyebrow">Google Ads</div>
+                        <div class="page-title">Campaign
+                            <span>Dashboard</span></div>
+                    </div>
+                    <div class="header-chips">
+                        <div class="period-chip" id="period-chip-label">Last 30
+                            Days</div>
+                        <div class="live-chip"><span class="live-dot"></span>
+                            LIVE</div>
+                    </div>
+                </div>
+
+                <!-- Account selector -->
+                <div class="account-selector-wrap" style="margin-bottom:16px;">
+                    <span class="account-selector-label">Showing campaigns
+                        for:</span>
+                    <select class="account-select" id="account-select">
+                        <option>Loading accounts…</option>
+                    </select>
+                </div>
+
+                <!-- ── DATE FILTER BAR ── -->
+                <div class="date-filter-bar">
+                    <span class="date-filter-label">Date Range:</span>
+                    <button class="date-preset-btn"
+                        data-range="TODAY">Today</button>
+                    <button class="date-preset-btn"
+                        data-range="LAST_7_DAYS">Last 7 Days</button>
+                    <button class="date-preset-btn"
+                        data-range="LAST_14_DAYS">Last 14 Days</button>
+                    <button class="date-preset-btn active"
+                        data-range="LAST_30_DAYS">Last 30 Days</button>
+                    <button class="date-preset-btn"
+                        data-range="LAST_90_DAYS">Last 90 Days</button>
+                    <button class="date-preset-btn" data-range="THIS_MONTH">This
+                        Month</button>
+                    <button class="date-preset-btn" data-range="LAST_MONTH">Last
+                        Month</button>
+                    <button id="date-custom-btn">Custom Range…</button>
+                </div>
+
+                <!-- Custom date range picker (hidden by default) -->
+                <div class="custom-range-wrap" id="custom-range-wrap">
+                    <label>From</label>
+                    <input type="date" id="date-start" />
+                    <span class="custom-range-sep">→</span>
+                    <label>To</label>
+                    <input type="date" id="date-end" />
+                    <button class="btn-apply-range"
+                        id="apply-custom-range">Apply</button>
+                </div>
+
+                <!-- Stats -->
+                <div class="stats-grid">
+                    <div class="stat-card blue">
+                        <div class="stat-label">Total Spend</div>
+                        <div class="stat-value blue" id="stat-spend">—</div>
+                        <div class="stat-sub" id="stat-spend-sub">Last 30
+                            Days</div>
+                    </div>
+                    <div class="stat-card teal">
+                        <div class="stat-label">Impressions</div>
+                        <div class="stat-value teal" id="stat-impr">—</div>
+                        <div class="stat-sub">All campaigns</div>
+                    </div>
+                    <div class="stat-card coral">
+                        <div class="stat-label">Total Clicks</div>
+                        <div class="stat-value coral" id="stat-clicks">—</div>
+                        <div class="stat-sub">All campaigns</div>
+                    </div>
+                    <div class="stat-card green">
+                        <div class="stat-label">Active Campaigns</div>
+                        <div class="stat-value green" id="stat-active">—</div>
+                        <div class="stat-sub" id="stat-total-sub">of —
+                            total</div>
+                    </div>
+                </div>
+
+                <!-- Toolbar -->
+                <div class="toolbar">
+                    <div class="toolbar-left">
+                        <span class="toolbar-title">All Campaigns</span>
+                        <span class="count-chip" id="count-chip">…</span>
+                    </div>
+                    <div class="search-wrap">
+                        <span class="search-icon">⌕</span>
+                        <input type="text" id="search"
+                            placeholder="Search name or ID…"
+                            oninput="filterCampaigns(this.value)" />
+                    </div>
+                </div>
+
+                <!-- Table -->
+                <div class="table-wrap">
+                    <div class="state-box" id="loading">
+                        <div class="spinner"></div>
+                        <div class="state-label">Fetching campaigns…</div>
+                    </div>
+                    <div class="state-box" id="error-box" style="display:none;">
+                        <div style="font-size:26px;color:var(--amber);">⚠</div>
+                        <div class="error-text" id="error-msg">An error
+                            occurred.</div>
+                    </div>
+                    <div id="table-inner" style="display:none;">
+                        <div class="table-head camp-grid">
+                            <div class="th">#</div>
+                            <div class="th">Campaign</div>
+                            <div class="th">Type</div>
+                            <div class="th">Spend</div>
+                            <div class="th">Impressions</div>
+                            <div class="th col-clicks">Clicks</div>
+                            <div class="th col-ctr right">CTR</div>
+                        </div>
+                        <div id="campaign-list"></div>
+                        <div class="empty-text" id="empty"
+                            style="display:none;">No campaigns found for this
+                            date range</div>
+                    </div>
+                </div>
+
+                <div class="page-footer">
+                    <!-- <span>Google Ads API · v23 · <span
+                            id="meta-cid">—</span></span> -->
+                    <span>Google Ads API · Dashboard</span>
+                    <span id="footer-time">—</span>
+                    <!-- <span>Fetched <span id="meta-time">—</span> · <span
+                            id="footer-count">—</span></span> -->
+                </div>
+
+            </main>
         </div>
-
-        <div class="page-footer">
-            <span>Google Ads API · v23 · <span id="meta-cid">—</span></span>
-            <span>Fetched <span id="meta-time">—</span> · <span id="footer-count">—</span></span>
-        </div>
-
-    </main>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-<script src="assets/js/dashboard15.js"></script>
-</body>
+        <script>
+    document.getElementById('footer-time').textContent =
+        'Updated ' + new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
+</script>
+        <script
+            src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+        <script src="assets/js/dashboard15.js"></script>
+    </body>
 </html>

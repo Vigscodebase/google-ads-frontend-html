@@ -1,195 +1,224 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Account Management — Campaign Intelligence</title>
-    <link rel="stylesheet" href="assets/css/shared8.css">
-    <link rel="stylesheet" href="assets/css/accountmanagement13.css">
-</head>
-<body class="auth-pending">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Account Management — Campaign Intelligence</title>
+        <link rel="stylesheet" href="assets/css/shared8.css">
+        <link rel="stylesheet" href="assets/css/accountmanagement16.css">
+    </head>
+    <body class="auth-pending">
 
-<div class="top-rule"></div>
-<div class="layout">
+        <div class="top-rule"></div>
+        <div class="layout">
 
-    <aside class="sidebar">
-        <div class="sidebar-nav">
-            <div class="sidebar-section-label">Menu</div>
-            <a class="nav-item" href="dashboard.html">
-                <span class="nav-icon">◫</span> Campaigns
-            </a>
-            <a class="nav-item active" href="accountmanagement.html">
-                <span class="nav-icon">⊞</span> Accounts
-            </a>
-        </div>
-        <div class="sidebar-bottom">
-            <div class="admin-pill">
-                <div class="admin-avatar" id="admin-avatar">—</div>
-                <div class="admin-email"  id="admin-email">—</div>
-            </div>
-            <button class="btn-logout" id="btn-logout">Sign Out</button>
-        </div>
-    </aside>
-
-    <main class="main">
-
-        <div class="page-header">
-            <div>
-                <div class="page-eyebrow">Google Ads · Connected Accounts</div>
-                <div class="page-title">Account <span>Management</span></div>
-            </div>
-        </div>
-
-        <!-- Connect panel -->
-        <div class="add-account-panel">
-            <div class="panel-title">Connect New Account</div>
-            <div class="panel-desc">
-                Authorize a Google account to grant access to its Google Ads data.
-                You will be redirected to Google's sign-in page to complete the OAuth flow.
-            </div>
-            <button class="btn-google" id="btn-google">
-                <svg class="google-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
-                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-                </svg>
-                Continue with Google Ads
-            </button>
-        </div>
-
-        <!-- Stats -->
-        <div class="stats-row">
-            <div class="stat-card blue">
-                <div class="stat-label">Total Accounts</div>
-                <div class="stat-value blue" id="stat-total">—</div>
-            </div>
-            <div class="stat-card green">
-                <div class="stat-label">Active</div>
-                <div class="stat-value green" id="stat-active">—</div>
-            </div>
-            <div class="stat-card teal">
-                <div class="stat-label">Customer IDs</div>
-                <div class="stat-value teal" id="stat-cids">—</div>
-            </div>
-        </div>
-
-        <!-- Toolbar -->
-        <div class="toolbar">
-            <div class="toolbar-left">
-                <span class="toolbar-title">Connected Accounts</span>
-                <span class="count-chip" id="count-chip">…</span>
-            </div>
-            <div class="search-wrap">
-                <span class="search-icon">⌕</span>
-                <input type="text" id="search" placeholder="Search email, name or CID…"
-                    oninput="filterAccounts(this.value)" />
-            </div>
-        </div>
-
-        <!-- Table -->
-        <div class="table-wrap">
-            <div class="state-box" id="loading">
-                <div class="spinner"></div>
-                <div class="state-label">Fetching accounts…</div>
-            </div>
-            <div id="table-inner" style="display:none;">
-                <div class="table-head acc-grid">
-                    <div class="th">#</div>
-                    <div class="th">Account</div>
-                    <div class="th">Status</div>
-                    <div class="th col-cids">Customer IDs</div>
-                    <div class="th col-access">User Access</div>
-                    <div class="th col-date">Added</div>
-                    <div class="th right">Actions</div>
+            <aside class="sidebar">
+                <div class="sidebar-nav">
+                    <div class="sidebar-section-label">Menu</div>
+                    <a class="nav-item" href="dashboard.html">
+                        <span class="nav-icon">◫</span> Campaigns
+                    </a>
+                    <a class="nav-item active" href="accountmanagement.html">
+                        <span class="nav-icon">⊞</span> Accounts
+                    </a>
+                    <a class="nav-item" href="usermanagement.html">
+                        <span class="nav-icon">⊞</span> User Management
+                    </a>
                 </div>
-                <div id="account-list"></div>
-                <div class="empty-text" id="empty" style="display:none;">
-                    No accounts connected — add one above
+                <div class="sidebar-bottom">
+                    <div class="admin-pill">
+                        <div class="admin-avatar" id="admin-avatar">—</div>
+                        <div class="admin-email" id="admin-email">—</div>
+                    </div>
+                    <button class="btn-logout" id="btn-logout">Sign Out</button>
                 </div>
-            </div>
-        </div>
+            </aside>
 
-        <div class="page-footer">
-            <span>Google Ads API · Account Manager</span>
-            <span id="footer-time">—</span>
-        </div>
+            <main class="main">
 
-    </main>
-</div>
-
-<!-- ══ USER ACCESS MODAL ══════════════════════════════════ -->
-<div id="access-modal">
-    <div class="access-modal-box">
-        <div class="access-modal-header">
-            <h3 id="access-modal-title">User Access</h3>
-            <button class="access-modal-close" id="access-modal-close">✕</button>
-        </div>
-        <div class="access-modal-body">
-
-            <!-- Grant access section -->
-            <div class="grant-section">
-                <div class="grant-section-title">Grant Access to User</div>
-                <div class="grant-form-row">
-                    <div class="grant-admin-wrap">
-                        <label>Admin User</label>
-                        <select class="grant-select" id="grant-admin-select">
-                            <option value="">— Select user —</option>
-                        </select>
-                    </div>
-                    <div class="grant-role-wrap">
-                        <label>Role</label>
-                        <select class="grant-select" id="grant-role-select">
-                            <option value="viewer">Viewer</option>
-                            <option value="editor">Editor</option>
-                            <option value="owner">Owner</option>
-                        </select>
-                    </div>
-                    <div style="padding-top:18px;">
-                        <button class="btn-grant" id="btn-grant-access">Grant Access</button>
+                <div class="page-header">
+                    <div>
+                        <div class="page-eyebrow">Google Ads · Connected
+                            Accounts</div>
+                        <div class="page-title">Account
+                            <span>Management</span></div>
                     </div>
                 </div>
-                <div style="margin-top:10px;font-size:11px;color:var(--muted);line-height:1.6;">
-                    <strong>Viewer</strong> — read-only access to campaign data ·
-                    <strong>Editor</strong> — can manage campaigns ·
-                    <strong>Owner</strong> — full control including account settings
+
+                <!-- Connect panel -->
+                <div class="add-account-panel">
+                    <div class="panel-title">Connect New Account</div>
+                    <div class="panel-desc">
+                        Authorize a Google account to grant access to its Google
+                        Ads data.
+                        You will be redirected to Google's sign-in page to
+                        complete the OAuth flow.
+                    </div>
+                    <button class="btn-google" id="btn-google">
+                        <svg class="google-icon" viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                                fill="#4285F4" />
+                            <path
+                                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                                fill="#34A853" />
+                            <path
+                                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"
+                                fill="#FBBC05" />
+                            <path
+                                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                                fill="#EA4335" />
+                        </svg>
+                        Continue with Google Ads
+                    </button>
+                </div>
+
+                <!-- Stats -->
+                <div class="stats-row">
+                    <div class="stat-card blue">
+                        <div class="stat-label">Total Accounts</div>
+                        <div class="stat-value blue" id="stat-total">—</div>
+                    </div>
+                    <div class="stat-card green">
+                        <div class="stat-label">Active</div>
+                        <div class="stat-value green" id="stat-active">—</div>
+                    </div>
+                    <div class="stat-card teal">
+                        <div class="stat-label">Customer IDs</div>
+                        <div class="stat-value teal" id="stat-cids">—</div>
+                    </div>
+                </div>
+
+                <!-- Toolbar -->
+                <div class="toolbar">
+                    <div class="toolbar-left">
+                        <span class="toolbar-title">Connected Accounts</span>
+                        <span class="count-chip" id="count-chip">…</span>
+                    </div>
+                    <div class="search-wrap">
+                        <span class="search-icon">⌕</span>
+                        <input type="text" id="search"
+                            placeholder="Search email, name or CID…"
+                            oninput="filterAccounts(this.value)" />
+                    </div>
+                </div>
+
+                <!-- Table -->
+                <div class="table-wrap">
+                    <div class="state-box" id="loading">
+                        <div class="spinner"></div>
+                        <div class="state-label">Fetching accounts…</div>
+                    </div>
+                    <div id="table-inner" style="display:none;">
+                        <div class="table-head acc-grid">
+                            <div class="th">#</div>
+                            <div class="th">Account</div>
+                            <div class="th">Status</div>
+                            <div class="th col-cids">Customer IDs</div>
+                            <div class="th col-access">User Access</div>
+                            <div class="th col-date">Added</div>
+                            <div class="th right">Actions</div>
+                        </div>
+                        <div id="account-list"></div>
+                        <div class="empty-text" id="empty"
+                            style="display:none;">
+                            No accounts connected — add one above
+                        </div>
+                    </div>
+                </div>
+
+                <div class="page-footer">
+                    <span>Google Ads API · Account Manager</span>
+                    <span id="footer-time">—</span>
+                </div>
+
+            </main>
+        </div>
+
+        <!-- ══ USER ACCESS MODAL ══════════════════════════════════ -->
+        <div id="access-modal">
+            <div class="access-modal-box">
+                <div class="access-modal-header">
+                    <h3 id="access-modal-title">User Access</h3>
+                    <button class="access-modal-close"
+                        id="access-modal-close">✕</button>
+                </div>
+                <div class="access-modal-body">
+
+                    <!-- Grant access section -->
+                    <div class="grant-section">
+                        <div class="grant-section-title">Grant Access to
+                            User</div>
+                        <div class="grant-form-row">
+                            <div class="grant-admin-wrap">
+                                <label>Admin User</label>
+                                <select class="grant-select"
+                                    id="grant-admin-select">
+                                    <option value>— Select user —</option>
+                                </select>
+                            </div>
+                            <div class="grant-role-wrap">
+                                <label>Role</label>
+                                <select class="grant-select"
+                                    id="grant-role-select">
+                                    <option value="viewer">Viewer</option>
+                                    <option value="editor">Editor</option>
+                                    <option value="owner">Owner</option>
+                                </select>
+                            </div>
+                            <div style="padding-top:18px;">
+                                <button class="btn-grant"
+                                    id="btn-grant-access">Grant Access</button>
+                            </div>
+                        </div>
+                        <div
+                            style="margin-top:10px;font-size:11px;color:var(--muted);line-height:1.6;">
+                            <strong>Viewer</strong> — read-only access to
+                            campaign data ·
+                            <strong>Editor</strong> — can manage campaigns ·
+                            <strong>Owner</strong> — full control including
+                            account settings
+                        </div>
+                    </div>
+
+                    <!-- Current access list -->
+                    <div class="roles-section-title">Current Access</div>
+                    <div id="access-roles-list">
+                        <div class="access-loading">Loading…</div>
+                    </div>
+
                 </div>
             </div>
+        </div>
 
-            <!-- Current access list -->
-            <div class="roles-section-title">Current Access</div>
-            <div id="access-roles-list">
-                <div class="access-loading">Loading…</div>
+        <!-- Delete modal -->
+        <div class="modal-backdrop" id="modal-confirm">
+            <div class="modal">
+                <div class="modal-title">Remove Account</div>
+                <div class="modal-desc">
+                    You are about to disconnect <strong
+                        id="modal-del-email">this account</strong>.
+                    All associated tokens will be revoked. This cannot be
+                    undone.
+                </div>
+                <div class="modal-actions">
+                    <button class="btn-cancel" id="modal-cancel">Cancel</button>
+                    <button class="btn-confirm-del" id="modal-delete-btn">Remove
+                        Account</button>
+                </div>
             </div>
-
         </div>
-    </div>
-</div>
 
-<!-- Delete modal -->
-<div class="modal-backdrop" id="modal-confirm">
-    <div class="modal">
-        <div class="modal-title">Remove Account</div>
-        <div class="modal-desc">
-            You are about to disconnect <strong id="modal-del-email">this account</strong>.
-            All associated tokens will be revoked. This cannot be undone.
+        <div class="toast" id="toast">
+            <span class="toast-dot"></span>
+            <span class="toast-text"></span>
         </div>
-        <div class="modal-actions">
-            <button class="btn-cancel" id="modal-cancel">Cancel</button>
-            <button class="btn-confirm-del" id="modal-delete-btn">Remove Account</button>
-        </div>
-    </div>
-</div>
 
-<div class="toast" id="toast">
-    <span class="toast-dot"></span>
-    <span class="toast-text"></span>
-</div>
-
-<script>
+        <script>
     document.getElementById('footer-time').textContent =
         'Updated ' + new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
 </script>
-<script src="assets/js/accountmanagement9.js"></script>
-</body>
+        <script src="assets/js/accountmanagement12.js"></script>
+    </body>
 </html>

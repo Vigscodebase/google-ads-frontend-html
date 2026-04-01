@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>User Management — Campaign Intelligence</title>
+        <link rel="stylesheet" href="assets/css/shared8.css">
+        <link rel="stylesheet" href="assets/css/usermanagement1.css">
+    </head>
+    <body class="auth-pending">
+
+        <div class="layout">
+
+            <aside class="sidebar">
+                <div class="sidebar-nav">
+                    <div class="sidebar-section-label">Menu</div>
+                    <a class="nav-item" href="dashboard.html">
+                        <span class="nav-icon">◫</span> Campaigns
+                    </a>
+                    <a class="nav-item" href="accountmanagement.html">
+                        <span class="nav-icon">⊞</span> Accounts
+                    </a>
+                    <a class="nav-item active" href="usermanagement.html">
+                        <span class="nav-icon">⊞</span> User Management
+                    </a>
+                </div>
+                <div class="sidebar-bottom">
+                    <div class="admin-pill">
+                        <div class="admin-avatar" id="admin-avatar">—</div>
+                        <div class="admin-email" id="admin-email">—</div>
+                    </div>
+                    <button class="btn-logout" id="btn-logout">Sign Out</button>
+                </div>
+            </aside>
+
+            <main class="main">
+
+                <div class="page-header">
+                    <div>
+                        <div class="page-eyebrow">Google Ads</div>
+                        <div class="page-title">User
+                            <span>Management</span></div>
+                    </div>
+                </div>
+
+                <!-- Table -->
+                <div class="table-wrap">
+                    <div class="state-box" id="loading">
+                        <div class="spinner"></div>
+                        <div class="state-label">Fetching accounts…</div>
+                    </div>
+                    <div id="table-inner" style="display:none;">
+                        <div class="table-head acc-grid">
+                            <div class="th">#</div>
+                            <div class="th">Account</div>
+                            <div class="th">Status</div>
+                            <div class="th col-cids">Customer IDs</div>
+                            <div class="th col-access">User Access</div>
+                            <div class="th col-date">Added</div>
+                            <div class="th right">Actions</div>
+                        </div>
+                        <div id="account-list"></div>
+                        <div class="empty-text" id="empty"
+                            style="display:none;">
+                            No accounts connected — add one above
+                        </div>
+                    </div>
+                </div>
+
+                <div class="page-footer">
+                    <span>Google Ads API · User Manager</span>
+                    <span id="footer-time">—</span>
+                </div>
+
+            </main>
+        </div>
+        <script>
+    document.getElementById('footer-time').textContent =
+        'Updated ' + new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
+</script>
+        <script src="assets/js/usermanagement4.js"></script>
+    </body>
+</html>

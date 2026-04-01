@@ -1,12 +1,12 @@
 /* ── Account Management JS + User Access Roles ── */
 
-const API        = 'https://americanssupport.org/gads/api';
-const token      = localStorage.getItem('sessionToken');
+const API = 'https://americanssupport.org/gads/api';
+const token = localStorage.getItem('sessionToken');
 const adminEmail = localStorage.getItem('adminEmail') || '';
 
-let allAccounts      = [];
-let allAdmins        = [];       // all admin users for grant-access dropdown
-let pendingDeleteId  = null;
+let allAccounts = [];
+let allAdmins = [];       // all admin users for grant-access dropdown
+let pendingDeleteId = null;
 let accessModalAccId = null;     // which account the access modal is open for
 
 // ── Auth guard ──────────────────────────────────────────────────────────────
@@ -38,14 +38,14 @@ function setAdminUI() {
     if (a) a.textContent = adminEmail ? adminEmail[0].toUpperCase() : '?';
 }
 document.getElementById('btn-logout')?.addEventListener('click', async () => {
-    try { await fetch(`${API}/logincheck/logout`, { method:'POST', headers:{ 'x-session-token':token } }); } catch {}
+    try { await fetch(`${API}/logincheck/logout`, { method: 'POST', headers: { 'x-session-token': token } }); } catch { }
     clearAndRedirect();
 });
 
 // Google OAuth
-const CLIENT_ID    = '476397425230-589marau60i4fog9skjabvimr5pihfgd.apps.googleusercontent.com';
+const CLIENT_ID = '476397425230-589marau60i4fog9skjabvimr5pihfgd.apps.googleusercontent.com';
 const REDIRECT_URI = encodeURIComponent(`${API}/auth/oauth/callback`);
-const SCOPE        = encodeURIComponent('https://www.googleapis.com/auth/adwords');
+const SCOPE = encodeURIComponent('https://www.googleapis.com/auth/adwords');
 
 document.getElementById('btn-google')?.addEventListener('click', () => {
     const state = crypto.randomUUID();
@@ -62,33 +62,33 @@ const authH = () => ({ 'x-session-token': token });
 function fmtDate(str) {
     if (!str) return '—';
     const d = new Date(str);
-    return isNaN(d.getTime()) ? '—' : d.toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' });
+    return isNaN(d.getTime()) ? '—' : d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 }
 function getInitials(name, email) {
     if (name?.trim()) {
         const p = name.trim().split(/\s+/);
-        return p.length >= 2 ? (p[0][0]+p[p.length-1][0]).toUpperCase() : p[0][0].toUpperCase();
+        return p.length >= 2 ? (p[0][0] + p[p.length - 1][0]).toUpperCase() : p[0][0].toUpperCase();
     }
     return email ? email[0].toUpperCase() : '?';
 }
 function getDisplayInfo(acc) {
     const email = acc.googleEmail || null;
-    const name  = acc.googleName  || null;
+    const name = acc.googleName || null;
     return {
-        displayName:  name || (email ? email.split('@')[0] : acc.userId || 'Unknown'),
+        displayName: name || (email ? email.split('@')[0] : acc.userId || 'Unknown'),
         displayEmail: email || acc.userId || '—',
         name, email,
     };
 }
 function getTokenStatus(acc) {
-    if (!acc.tokenRefreshedAt) return { label:'NO TOKEN', cls:'status-pending' };
+    if (!acc.tokenRefreshedAt) return { label: 'NO TOKEN', cls: 'status-pending' };
     const age = Date.now() - new Date(acc.tokenRefreshedAt).getTime();
-    return age < 55*60*1000
-        ? { label:'ACTIVE',         cls:'status-active'  }
-        : { label:'NEEDS REFRESH',  cls:'status-expired' };
+    return age < 55 * 60 * 1000
+        ? { label: 'ACTIVE', cls: 'status-active' }
+        : { label: 'NEEDS REFRESH', cls: 'status-expired' };
 }
 function roleColor(role) {
-    if (role === 'owner')  return 'role-owner';
+    if (role === 'owner') return 'role-owner';
     if (role === 'editor') return 'role-editor';
     return 'role-viewer';
 }
@@ -101,51 +101,51 @@ function loadAdminList() {
     return fetch(`${API}/auth/admin-list`, { headers: authH() })
         .then(r => r.json())
         .then(data => { allAdmins = data.admins || []; })
-        .catch(() => {});
+        .catch(() => { });
 }
 
 // ── Load & render accounts ────────────────────────────────────────────────────
 function loadAccounts() {
     showLoading(true);
     return fetch(`${API}/auth/accounts`, { headers: authH() })
-        .then(r => { if (r.status===401) { clearAndRedirect(); return null; } return r.json(); })
+        .then(r => { if (r.status === 401) { clearAndRedirect(); return null; } return r.json(); })
         .then(data => {
             if (!data) return;
             allAccounts = data.accounts || [];
             updateStats(); renderAccounts(allAccounts); showLoading(false);
         })
-        .catch(() => { allAccounts=[]; updateStats(); renderAccounts([]); showLoading(false); });
+        .catch(() => { allAccounts = []; updateStats(); renderAccounts([]); showLoading(false); });
 }
 
 function updateStats() {
-    const total    = allAccounts.length;
-    const active   = allAccounts.filter(a => getTokenStatus(a).label==='ACTIVE').length;
-    const totalCids= allAccounts.reduce((s,a)=>s+(Array.isArray(a.customerIds)?a.customerIds.length:0),0);
+    const total = allAccounts.length;
+    const active = allAccounts.filter(a => getTokenStatus(a).label === 'ACTIVE').length;
+    const totalCids = allAccounts.reduce((s, a) => s + (Array.isArray(a.customerIds) ? a.customerIds.length : 0), 0);
     const el = id => document.getElementById(id);
-    if (el('stat-total'))  el('stat-total').textContent  = total;
+    if (el('stat-total')) el('stat-total').textContent = total;
     if (el('stat-active')) el('stat-active').textContent = active;
-    if (el('stat-cids'))   el('stat-cids').textContent   = totalCids;
-    if (el('count-chip'))  el('count-chip').textContent  = total;
+    if (el('stat-cids')) el('stat-cids').textContent = totalCids;
+    if (el('count-chip')) el('count-chip').textContent = total;
 }
 
 function renderAccounts(list) {
     const tbody = document.getElementById('account-list');
     const empty = document.getElementById('empty');
     if (!tbody) return;
-    if (!list.length) { tbody.innerHTML=''; if(empty) empty.style.display='block'; return; }
-    if (empty) empty.style.display='none';
+    if (!list.length) { tbody.innerHTML = ''; if (empty) empty.style.display = 'block'; return; }
+    if (empty) empty.style.display = 'none';
 
     tbody.innerHTML = list.map((acc, i) => {
         const id = acc._id;
         const { displayName, displayEmail, name, email } = getDisplayInfo(acc);
-        const st  = getTokenStatus(acc);
-        const added     = fmtDate(acc.created || acc.createdAt);
+        const st = getTokenStatus(acc);
+        const added = fmtDate(acc.created || acc.createdAt);
         const refreshed = fmtDate(acc.tokenRefreshedAt);
-        const cids      = Array.isArray(acc.customerIds) ? acc.customerIds : [];
-        const roles     = acc.accessRoles || [];
+        const cids = Array.isArray(acc.customerIds) ? acc.customerIds : [];
+        const roles = acc.accessRoles || [];
 
         const cidsHtml = cids.length
-            ? cids.map(c=>`<span class="cid-chip" title="CID: ${c}">${c}</span>`).join('')
+            ? cids.map(c => `<span class="cid-chip" title="CID: ${c}">${c}</span>`).join('')
             : `<span class="cid-chip no-cid">None — click Refresh</span>`;
 
         const warnBadge = !acc.googleEmail
@@ -156,18 +156,18 @@ function renderAccounts(list) {
         const accessSummary = roles.length
             ? roles.map(r => {
                 const label = r.adminEmail ? r.adminEmail.split('@')[0] : 'User';
-                return `<span class="role-badge ${roleColor(r.role)}" title="${r.adminEmail||''}">${label}: ${r.role}</span>`;
-              }).join('')
+                return `<span class="role-badge ${roleColor(r.role)}" title="${r.adminEmail || ''}">${label}: ${r.role}</span>`;
+            }).join('')
             : `<span class="no-access-label">No users assigned</span>`;
 
         const safeEmail = (email || acc.userId || '').replace(/'/g, "\\'");
 
         return `
-        <div class="account-row" style="animation-delay:${i*35}ms" data-id="${id}">
-            <div class="cell-num">${String(i+1).padStart(2,'0')}</div>
+        <div class="account-row" style="animation-delay:${i * 35}ms" data-id="${id}">
+            <div class="cell-num">${String(i + 1).padStart(2, '0')}</div>
 
             <div class="account-name-wrap">
-                <div class="account-avatar">${getInitials(name,email)}</div>
+                <div class="account-avatar">${getInitials(name, email)}</div>
                 <div class="account-info">
                     <div class="account-name">${displayName}${warnBadge}</div>
                     <div class="account-email" title="${displayEmail}">${displayEmail}</div>
@@ -188,9 +188,6 @@ function renderAccounts(list) {
             <div class="cell-date col-date">${added}</div>
 
             <div class="cell-actions">
-                <button class="action-btn-access" onclick="openAccessModal('${id}')" title="Manage user access">
-                    👥 Access
-                </button>
                 <button class="action-btn-refresh" onclick="refreshAccount('${id}')" title="Refresh token">↻ Refresh</button>
                 <button class="action-btn-delete"  onclick="confirmDelete('${id}','${safeEmail}')" title="Remove account">✕ Remove</button>
             </div>
@@ -201,9 +198,9 @@ function renderAccounts(list) {
 function filterAccounts(q) {
     q = q.toLowerCase();
     const f = allAccounts.filter(a =>
-        (a.googleEmail||'').toLowerCase().includes(q) ||
-        (a.googleName||'').toLowerCase().includes(q)  ||
-        (a.customerIds||[]).join(' ').includes(q)
+        (a.googleEmail || '').toLowerCase().includes(q) ||
+        (a.googleName || '').toLowerCase().includes(q) ||
+        (a.customerIds || []).join(' ').includes(q)
     );
     document.getElementById('count-chip').textContent = f.length;
     renderAccounts(f);
@@ -211,11 +208,11 @@ function filterAccounts(q) {
 
 // ── Refresh & Delete ──────────────────────────────────────────────────────────
 function refreshAccount(id) {
-    showToast('Refreshing token & syncing profile…','default');
-    fetch(`${API}/auth/refresh/${id}`, { method:'POST', headers:authH() })
-        .then(r=>r.json())
-        .then(d=>{ showToast(d.message||'Refreshed','success'); loadAccounts(); })
-        .catch(()=>showToast('Refresh failed','error'));
+    showToast('Refreshing token & syncing profile…', 'default');
+    fetch(`${API}/auth/refresh/${id}`, { method: 'POST', headers: authH() })
+        .then(r => r.json())
+        .then(d => { showToast(d.message || 'Refreshed', 'success'); loadAccounts(); })
+        .catch(() => showToast('Refresh failed', 'error'));
 }
 function confirmDelete(id, email) {
     pendingDeleteId = id;
@@ -224,18 +221,18 @@ function confirmDelete(id, email) {
     document.getElementById('modal-confirm')?.classList.add('open');
 }
 document.getElementById('modal-cancel')?.addEventListener('click', () => {
-    pendingDeleteId=null; document.getElementById('modal-confirm')?.classList.remove('open');
+    pendingDeleteId = null; document.getElementById('modal-confirm')?.classList.remove('open');
 });
 document.getElementById('modal-confirm')?.addEventListener('click', e => {
-    if (e.target===e.currentTarget) { pendingDeleteId=null; e.currentTarget.classList.remove('open'); }
+    if (e.target === e.currentTarget) { pendingDeleteId = null; e.currentTarget.classList.remove('open'); }
 });
 document.getElementById('modal-delete-btn')?.addEventListener('click', () => {
     if (!pendingDeleteId) return;
-    const id=pendingDeleteId; pendingDeleteId=null;
+    const id = pendingDeleteId; pendingDeleteId = null;
     document.getElementById('modal-confirm')?.classList.remove('open');
-    fetch(`${API}/auth/accounts/${id}`, { method:'DELETE', headers:authH() })
-        .then(r=>{ if(!r.ok) throw new Error(); showToast('Account removed','success'); loadAccounts(); })
-        .catch(()=>showToast('Failed to remove','error'));
+    fetch(`${API}/auth/accounts/${id}`, { method: 'DELETE', headers: authH() })
+        .then(r => { if (!r.ok) throw new Error(); showToast('Account removed', 'success'); loadAccounts(); })
+        .catch(() => showToast('Failed to remove', 'error'));
 });
 
 // ══════════════════════════════════════════════════
@@ -293,7 +290,7 @@ function loadAccessRoles(accountId) {
             list.innerHTML = roles.map(r => `
                 <div class="access-role-row">
                     <div class="access-user-info">
-                        <div class="access-user-avatar">${(r.adminEmail||'?')[0].toUpperCase()}</div>
+                        <div class="access-user-avatar">${(r.adminEmail || '?')[0].toUpperCase()}</div>
                         <div>
                             <div class="access-user-email">${r.adminEmail || r.adminId}</div>
                             ${r.adminFullname ? `<div class="access-user-name">${r.adminFullname}</div>` : ''}
@@ -305,9 +302,9 @@ function loadAccessRoles(accountId) {
                     </div>
                     <div class="access-role-actions">
                         <select class="role-change-select" onchange="changeRole('${accountId}','${r.adminId}',this.value)">
-                            <option value="viewer"  ${r.role==='viewer'  ? 'selected':''}>Viewer</option>
-                            <option value="editor"  ${r.role==='editor'  ? 'selected':''}>Editor</option>
-                            <option value="owner"   ${r.role==='owner'   ? 'selected':''}>Owner</option>
+                            <option value="viewer"  ${r.role === 'viewer' ? 'selected' : ''}>Viewer</option>
+                            <option value="editor"  ${r.role === 'editor' ? 'selected' : ''}>Editor</option>
+                            <option value="owner"   ${r.role === 'owner' ? 'selected' : ''}>Owner</option>
                         </select>
                         <button class="btn-revoke" onclick="revokeAccess('${accountId}','${r.adminId}')">Revoke</button>
                     </div>
@@ -320,14 +317,14 @@ function loadAccessRoles(accountId) {
 // Grant access
 document.getElementById('btn-grant-access')?.addEventListener('click', () => {
     const adminId = document.getElementById('grant-admin-select').value;
-    const role    = document.getElementById('grant-role-select').value;
+    const role = document.getElementById('grant-role-select').value;
     if (!adminId) { showToast('Please select a user first.', 'error'); return; }
     if (!accessModalAccId) return;
 
     fetch(`${API}/auth/accounts/${accessModalAccId}/access`, {
-        method:  'POST',
+        method: 'POST',
         headers: { ...authH(), 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ adminId, role }),
+        body: JSON.stringify({ adminId, role }),
     })
         .then(r => r.json())
         .then(d => {
@@ -336,7 +333,7 @@ document.getElementById('btn-grant-access')?.addEventListener('click', () => {
             loadAccounts();  // refresh the summary row
             // Reset form
             document.getElementById('grant-admin-select').value = '';
-            document.getElementById('grant-role-select').value  = 'viewer';
+            document.getElementById('grant-role-select').value = 'viewer';
         })
         .catch(() => showToast('Failed to grant access', 'error'));
 });
@@ -344,9 +341,9 @@ document.getElementById('btn-grant-access')?.addEventListener('click', () => {
 // Change role inline
 function changeRole(accountId, adminId, newRole) {
     fetch(`${API}/auth/accounts/${accountId}/access`, {
-        method:  'POST',
+        method: 'POST',
         headers: { ...authH(), 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ adminId, role: newRole }),
+        body: JSON.stringify({ adminId, role: newRole }),
     })
         .then(r => r.json())
         .then(d => { showToast(d.message || 'Role updated', 'success'); loadAccounts(); })
@@ -357,7 +354,7 @@ function changeRole(accountId, adminId, newRole) {
 function revokeAccess(accountId, adminId) {
     if (!confirm('Revoke this user\'s access?')) return;
     fetch(`${API}/auth/accounts/${accountId}/access/${adminId}`, {
-        method:  'DELETE',
+        method: 'DELETE',
         headers: authH(),
     })
         .then(r => r.json())
@@ -378,7 +375,7 @@ function showLoading(state) {
 }
 
 let toastTimer;
-function showToast(msg, type='default') {
+function showToast(msg, type = 'default') {
     const t = document.getElementById('toast');
     if (!t) return;
     t.className = `toast ${type}`;
@@ -386,5 +383,5 @@ function showToast(msg, type='default') {
     if (tx) tx.textContent = msg;
     t.classList.add('show');
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(()=>t.classList.remove('show'), 3500);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
 }

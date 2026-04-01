@@ -476,7 +476,7 @@
 /* Account table columns */
 .table-head.acc-grid,
 .account-row {
-    grid-template-columns: 44px 1fr 160px 140px 110px 110px 265px;
+    grid-template-columns: 44px 1fr 160px 140px 110px 110px 148px;
 }
 
 .table-head.acc-grid {
