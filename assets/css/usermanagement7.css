@@ -1,0 +1,638 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.header {
+    background: white;
+    padding: 20px 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.header h1 {
+    color: #4a5568;
+    font-size: 28px;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.logout-btn {
+    background: #e53e3e;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.3s;
+}
+
+.logout-btn:hover {
+    background: #c53030;
+}
+
+.main-content {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+.form-section {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.table-section {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+    color: #4a5568;
+    margin-bottom: 25px;
+    font-size: 22px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    color: #4a5568;
+    font-weight: 500;
+}
+
+input,
+select {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: border-color 0.3s;
+}
+
+input:focus,
+select:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 14px 30px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    width: 100%;
+    transition: transform 0.2s;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background: #a0aec0;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+.table-container {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 600px;
+}
+
+th,
+td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+th {
+    background: #f7fafc;
+    font-weight: 600;
+    color: #4a5568;
+    position: sticky;
+    top: 0;
+}
+
+tr:hover {
+    background: #f7fafc;
+}
+
+.action-btn {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-right: 8px;
+    transition: all 0.3s;
+}
+
+.edit-btn {
+    background: #48bb78;
+    color: white;
+}
+
+.edit-btn:hover {
+    background: #38a169;
+}
+
+.delete-btn {
+    background: #f56565;
+    color: white;
+}
+
+.delete-btn:hover {
+    background: #e53e3e;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(3px);
+}
+
+.modal-content {
+    background: white;
+    margin: 10% auto;
+    padding: 30px;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.close {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    font-size: 30px;
+    cursor: pointer;
+    color: #a0aec0;
+}
+
+.close:hover {
+    color: #4a5568;
+}
+
+.form-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 25px;
+}
+
+.no-access {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px 20px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.no-access h2 {
+    color: #e53e3e;
+    margin-bottom: 15px;
+}
+
+.table-head.camp-grid,
+.campaign-row {
+    grid-template-columns: 390px 390px 390px 390px;
+}
+
+.table-head.camp-grid {
+    display: grid;
+}
+
+.campaign-row {
+    display: grid;
+    padding: 13px 20px;
+    border-bottom: 1px solid var(--border);
+    align-items: center;
+    transition: background 0.1s;
+    opacity: 0;
+    animation: rowSlide 0.3s ease forwards;
+}
+
+.campaign-row:last-child {
+    border-bottom: none;
+}
+
+.campaign-row:hover {
+    background: var(--blue-lt);
+}
+
+.cell-num {
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 600;
+}
+
+.cell-name {
+    padding-right: 14px;
+}
+
+.name-main {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 2px;
+}
+
+.cell-metric {
+    font-size: 12.5px;
+    color: var(--text-sec);
+    font-weight: 500;
+}
+
+.name-main {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 2px;
+}
+
+@keyframes rowSlide {
+    from {
+        opacity: 0;
+        transform: translateX(-4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* =========================
+   FIX GRID (ADD ACTION COL)
+========================= */
+.table-head.camp-grid,
+.campaign-row {
+    grid-template-columns: 80px 1.5fr 2fr 1fr 1.5fr;
+    align-items: center;
+}
+
+/* =========================
+   ACTION BUTTONS
+========================= */
+.action-btn {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    margin-right: 6px;
+    transition: all 0.2s ease;
+}
+
+.action-btn:last-child {
+    margin-right: 0;
+}
+
+.edit-btn {
+    background: #48bb78;
+    color: #fff;
+}
+
+.edit-btn:hover {
+    background: #38a169;
+    transform: translateY(-1px);
+}
+
+.delete-btn {
+    background: #f56565;
+    color: #fff;
+}
+
+.delete-btn:hover {
+    background: #e53e3e;
+    transform: translateY(-1px);
+}
+
+/* =========================
+   ACTION COLUMN ALIGNMENT
+========================= */
+.campaign-row>div:last-child {
+    display: flex;
+    gap: 8px;
+}
+
+/* =========================
+   MODAL IMPROVEMENTS
+========================= */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    background: #fff;
+    margin: 8% auto;
+    padding: 30px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 420px;
+    position: relative;
+    animation: modalSlideIn 0.25s ease;
+}
+
+.close {
+    position: absolute;
+    right: 15px;
+    top: 10px;
+    font-size: 26px;
+    cursor: pointer;
+    color: #999;
+}
+
+.close:hover {
+    color: #333;
+}
+
+/* =========================
+   INPUT POLISH (MODAL)
+========================= */
+.modal input,
+.modal select {
+    margin-top: 6px;
+}
+
+/* =========================
+   EMPTY STATE CENTER
+========================= */
+.empty-text {
+    text-align: center;
+    padding: 40px;
+    color: #888;
+}
+
+/* =========================
+   LOADING CENTER FIX
+========================= */
+.state-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 0;
+}
+
+/* =========================
+   DELETE MODAL SPECIFIC
+========================= */
+
+/* Danger button (Delete confirm) */
+.btn-danger {
+    background: #e53e3e;
+    color: #fff;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-danger:hover {
+    background: #c53030;
+    transform: translateY(-1px);
+}
+
+/* Delete modal text */
+#deleteModal p {
+    margin-top: 10px;
+    font-size: 15px;
+    color: #4a5568;
+    line-height: 1.5;
+}
+
+/* Highlight warning feel */
+#deleteModal h2 {
+    color: #e53e3e;
+}
+
+/* Buttons alignment (better spacing) */
+#deleteModal .form-actions {
+    justify-content: flex-end;
+}
+
+/* =========================
+   ADD USER MODAL SPECIFIC
+========================= */
+
+/* Add modal title color (subtle blue tone) */
+#addUserModal h2 {
+    color: #4a5568;
+}
+
+/* Align buttons nicely */
+#addUserModal .form-actions {
+    justify-content: flex-end;
+}
+
+/* Add spacing between inputs */
+#addUserModal .form-group input,
+#editModal .form-group input {
+    font-size: 15px;
+}
+
+/* =========================
+   PASSWORD FIELD IMPROVEMENT
+========================= */
+
+/* Password input styling */
+input[type="password"] {
+    letter-spacing: 0.5px;
+}
+
+/* Optional placeholder styling */
+input::placeholder {
+    color: #a0aec0;
+    font-size: 13px;
+}
+
+/* =========================
+   ADD BUTTON (TOP)
+========================= */
+
+.add-user-btn {
+    display: inline-block;
+    width: auto;
+    padding: 10px 18px;
+    font-size: 14px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+/* =========================
+   MODAL ANIMATION IMPROVEMENT
+========================= */
+
+@keyframes modalFade {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* smoother overlay */
+.modal {
+    animation: modalFade 0.2s ease;
+}
+
+/* =========================
+   INPUT FOCUS IMPROVEMENT
+========================= */
+
+input:focus,
+select:focus {
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.15);
+}
+
+/* =========================
+   BUTTON STATES (UX BOOST)
+========================= */
+
+button:active {
+    transform: scale(0.97);
+}
+
+/* =========================
+   FORM ACTION BUTTON FIX
+========================= */
+
+/* Prevent full width buttons inside modal */
+.modal .btn-primary,
+.modal .btn-secondary,
+.modal .btn-danger {
+    width: auto;
+    min-width: 100px;
+}
+
+/* Optional: subtle shake animation on open */
+@keyframes modalPop {
+    0% {
+        transform: scale(0.95);
+        opacity: 0;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+#deleteModal .modal-content {
+    animation: modalPop 0.2s ease;
+}
+
+@media (max-width: 768px) {
+
+    .main-content {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+
+    .table-head.camp-grid,
+    .campaign-row {
+        grid-template-columns: 50px 1fr 1fr 1fr 1fr;
+        font-size: 12px;
+    }
+
+    .action-btn {
+        padding: 5px 8px;
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .modal-content {
+        margin: 20% auto;
+        padding: 20px;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .modal .btn-primary,
+    .modal .btn-secondary,
+    .modal .btn-danger {
+        width: 100%;
+    }
+}
