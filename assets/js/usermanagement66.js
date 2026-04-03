@@ -31,7 +31,7 @@ async function loadUserList() {
                 <div class="cell-name"><div class="name-main">${u.role}</div></div>
 
                 <div>
-                    <button class="action-btn edit-btn" onclick="openEdit('${u.id}','${u.name}','${u.email}','${u.role}')">Edit</button>
+                    <button class="action-btn edit-btn" onclick="openEdit('${u.id}')">Edit</button>
                     <button class="action-btn delete-btn" onclick="openDelete('${u.id}')">Delete</button>
                 </div>
             </div>
@@ -43,20 +43,6 @@ async function loadUserList() {
 
     showLoading(false);
 }
-
-/* ================= EDIT ================= */
-function openEdit(id, name, email, role) {
-    document.getElementById('editUserId').value = id;
-    document.getElementById('editName').value = name;
-    document.getElementById('editEmail').value = email;
-    document.getElementById('editRole').value = role;
-
-    document.getElementById('editModal').style.display = 'block';
-}
-
-document.getElementById('closeModal').onclick = () => {
-    document.getElementById('editModal').style.display = 'none';
-};
 
 /* ================= EDIT ================= */
 /* Load roles for Edit modal */
@@ -80,22 +66,41 @@ async function loadRolesForEdit() {
     }
 }
 
-function openEdit(id, name, email, role) {
-    document.getElementById('editUserId').value = id;
-    document.getElementById('editName').value = name;
-    document.getElementById('editEmail').value = email;
-    document.getElementById('editRole').value = role;
-    // load roles dynamically
-    loadRolesForEdit();
-    document.getElementById('editModal').style.display = 'block';
+async function openEdit(id) {
+    try {
+        const res = await fetch(`${API}/auth/single-user/${id}`, {
+            method: 'GET',
+            headers: authH()
+        });
+
+        const data = await res.json();
+        const user = data.data;
+
+        document.getElementById('editUserId').value = id;
+        document.getElementById('editName').value = user.fullname;
+        document.getElementById('editEmail').value = user.email;
+
+        await loadRolesForEdit();
+
+        document.getElementById('editRole').value = user.role;
+        document.getElementById('editModal').style.display = 'block';
+
+    } catch (err) {
+        console.error('Error:', err);
+    }
+
 }
 
 document.getElementById('closeModal').onclick = () => {
     document.getElementById('editModal').style.display = 'none';
 };
 
+document.getElementById('closeModal').onclick = () => {
+    document.getElementById('editModal').style.display = 'none';
+};
+
 async function updateUser() {
-    const id = document.getElementById('editUserId').value;
+    const usr_ID = document.getElementById('editUserId').value;
     const name = document.getElementById('editName').value;
     const email = document.getElementById('editEmail').value;
     const role = document.getElementById('editRole').value;
@@ -109,8 +114,8 @@ async function updateUser() {
     }
 
     try {
-        await fetch(`${API}/auth/update-user/${id}`, {
-            method: 'PUT',
+        await fetch(`${API}/auth/update-single-user/${usr_ID}`, {
+            method: 'PATCH',
             headers: {
                 ...authH(),
                 'Content-Type': 'application/json'
@@ -257,22 +262,55 @@ async function createUser() {
     }
 }
 
-// ── Auth guard──────────────────────────────────────────────────────────────
+const currentPage = window.location.pathname.split("/").pop();
+// ── Auth guard ──────────────────────────────────────────────────────────────
 if (!token) {
     window.location.href = 'index.html';
 } else {
-    fetch(`${API}/logincheck/me`, { headers: { 'x-session-token': token } })
-        .then(r => {
-            if (!r.ok) { clearAndRedirect(); return; }
-            document.body.classList.remove('auth-pending');
-            setAdminUI();
-            Promise.all([loadUserList()]);
-        })
-        .catch(() => {
-            document.body.classList.remove('auth-pending');
-            setAdminUI();
-            Promise.all([loadUserList()]);
-        });
+
+    let decoded;
+
+    try {
+        decoded = jwtDecode(token);
+    } catch (e) {
+        window.location.href = 'index.html';
+    }
+
+    if (decoded && decoded.role !== 'super_admin') {
+        if (currentPage === "usermanagement.html") {
+            window.location.href = "dashboard.html";
+        }
+        document.body.classList.remove('auth-pending');
+        document.getElementById("usr-management").style.display = "none";
+        fetch(`${API}/logincheck/me`, { headers: { 'x-session-token': token } })
+            .then(r => {
+                if (!r.ok) { clearAndRedirect(); return; }
+                document.body.classList.remove('auth-pending');
+                setAdminUI();
+                Promise.all([loadUserList()]);
+            })
+            .catch(() => {
+                document.body.classList.remove('auth-pending');
+                setAdminUI();
+                Promise.all([loadUserList()]);
+            });
+    } else {
+        // window.location.href = 'accountmanagement.html';
+        document.getElementById("usr-management").style.display = "block";
+        fetch(`${API}/logincheck/me`, { headers: { 'x-session-token': token } })
+            .then(r => {
+                if (!r.ok) { clearAndRedirect(); return; }
+                document.body.classList.remove('auth-pending');
+                setAdminUI();
+                Promise.all([loadUserList()]);
+            })
+            .catch(() => {
+                document.body.classList.remove('auth-pending');
+                setAdminUI();
+                Promise.all([loadUserList()]);
+            });
+    }
+
 }
 
 const authH = () => ({ 'x-session-token': token });
@@ -289,7 +327,10 @@ function setAdminUI() {
     if (e) e.textContent = adminEmail || '—';
     if (a) a.textContent = adminEmail ? adminEmail[0].toUpperCase() : '?';
 }
-
+document.getElementById('btn-logout').addEventListener('click', async () => {
+    try { await fetch(`${API}/logincheck/logout`, { method: 'POST', headers: { 'x-session-token': token } }); } catch { }
+    clearAndRedirect();
+});
 // ── UI helpers────────────────────────────────────────────────────────────────
 function showLoading(state) {
     const ld = document.getElementById('loading');

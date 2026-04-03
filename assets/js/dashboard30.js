@@ -15,37 +15,60 @@ let activeDateRange = 'LAST_30_DAYS';
 let activeStartDate = '';
 let activeEndDate = '';
 
+const currentPage = window.location.pathname.split("/").pop();
 // ── Auth guard ──────────────────────────────────────────────────────────────
 if (!token) {
-    window.location.href = 'index.html';
+    if (currentPage !== "index.html") {
+        window.location.href = "index.html";
+    }
 } else {
-    fetch(`${API}/logincheck/me`, { headers: { 'x-session-token': token } })
-        .then(r => {
-            if (!r.ok) { clearAndRedirect(); return; }
-            document.body.classList.remove('auth-pending');
-            setAdminUI();
-            loadAllAccounts();
-        })
-        .catch(() => {
-            document.body.classList.remove('auth-pending');
-            setAdminUI();
-            loadAllAccounts();
-        });
-}
 
-function clearAndRedirect() {
-    localStorage.removeItem('sessionToken');
-    localStorage.removeItem('adminEmail');
-    window.location.href = 'index.html';
+    let decoded;
+
+    try {
+        decoded = jwtDecode(token);
+    } catch (e) {
+        if (currentPage !== "index.html") {
+            window.location.href = "index.html";
+        }
+    }
+
+    if (decoded && decoded.role !== 'super_admin') {
+        if (currentPage !== "dashboard.html") {
+            window.location.href = "dashboard.html";
+        }
+        document.body.classList.remove('auth-pending');
+        document.getElementById("usr-management").style.display = "none";
+        fetch(`${API}/logincheck/me`, { headers: { 'x-session-token': token } })
+            .then(r => {
+                if (!r.ok) { clearAndRedirect(); return; }
+                document.body.classList.remove('auth-pending');
+                setAdminUI();
+                loadAllAccounts();
+            })
+            .catch(() => {
+                document.body.classList.remove('auth-pending');
+                setAdminUI();
+                loadAllAccounts();
+            });
+    } else if (decoded) {
+        // window.location.href = 'dashboard.html';
+        document.getElementById("usr-management").style.display = "block";
+        fetch(`${API}/logincheck/me`, { headers: { 'x-session-token': token } })
+            .then(r => {
+                if (!r.ok) { clearAndRedirect(); return; }
+                document.body.classList.remove('auth-pending');
+                setAdminUI();
+                loadAllAccounts();
+            })
+            .catch(() => {
+                document.body.classList.remove('auth-pending');
+                setAdminUI();
+                loadAllAccounts();
+            });
+    }
+
 }
-function setAdminUI() {
-    document.getElementById('admin-email').textContent = adminEmail || '—';
-    document.getElementById('admin-avatar').textContent = adminEmail ? adminEmail[0].toUpperCase() : '?';
-}
-document.getElementById('btn-logout').addEventListener('click', async () => {
-    try { await fetch(`${API}/logincheck/logout`, { method: 'POST', headers: { 'x-session-token': token } }); } catch { }
-    clearAndRedirect();
-});
 
 const authH = () => ({ 'x-session-token': token });
 
@@ -131,6 +154,11 @@ function buildCampaignUrl(userId, customerId) {
 function reloadCampaigns() {
     showLoading(true);
     loadCampaigns(activeUserId, activeCustomerId);
+}
+
+function setAdminUI() {
+    document.getElementById('admin-email').textContent = adminEmail || '—';
+    document.getElementById('admin-avatar').textContent = adminEmail ? adminEmail[0].toUpperCase() : '?';
 }
 
 // ══════════════════════════════════════════════════
@@ -324,3 +352,14 @@ function showError(msg) {
     document.getElementById('error-box').style.display = 'flex';
     document.getElementById('error-msg').textContent = typeof msg === 'object' ? JSON.stringify(msg) : "No Data Found";
 }
+
+function clearAndRedirect() {
+    localStorage.removeItem('sessionToken');
+    localStorage.removeItem('adminEmail');
+    window.location.href = 'index.html';
+}
+
+document.getElementById('btn-logout').addEventListener('click', async () => {
+    try { await fetch(`${API}/logincheck/logout`, { method: 'POST', headers: { 'x-session-token': token } }); } catch { }
+    clearAndRedirect();
+});

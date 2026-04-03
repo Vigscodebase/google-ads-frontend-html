@@ -9,24 +9,56 @@ let allAdmins = [];       // all admin users for grant-access dropdown
 let pendingDeleteId = null;
 let accessModalAccId = null;     // which account the access modal is open for
 
+const currentPage = window.location.pathname.split("/").pop();
 // ── Auth guard ──────────────────────────────────────────────────────────────
 if (!token) {
     window.location.href = 'index.html';
 } else {
-    fetch(`${API}/logincheck/me`, { headers: { 'x-session-token': token } })
-        .then(r => {
-            if (!r.ok) { clearAndRedirect(); return; }
-            document.body.classList.remove('auth-pending');
-            setAdminUI();
-            Promise.all([loadAccounts(), loadAdminList()]);
-        })
-        .catch(() => {
-            document.body.classList.remove('auth-pending');
-            setAdminUI();
-            Promise.all([loadAccounts(), loadAdminList()]);
-        });
-}
 
+    let decoded;
+
+    try {
+        decoded = jwtDecode(token);
+    } catch (e) {
+        window.location.href = 'index.html';
+    }
+
+    if (decoded && decoded.role !== 'super_admin') {
+        if (currentPage !== "accountmanagement.html") {
+            window.location.href = "accountmanagement.html";
+        }
+        document.body.classList.remove('auth-pending');
+        document.getElementById("usr-management").style.display = "none";
+        fetch(`${API}/logincheck/me`, { headers: { 'x-session-token': token } })
+            .then(r => {
+                if (!r.ok) { clearAndRedirect(); return; }
+                document.body.classList.remove('auth-pending');
+                setAdminUI();
+                Promise.all([loadAccounts(), loadAdminList()]);
+            })
+            .catch(() => {
+                document.body.classList.remove('auth-pending');
+                setAdminUI();
+                Promise.all([loadAccounts(), loadAdminList()]);
+            });
+    } else {
+        // window.location.href = 'accountmanagement.html';
+        document.getElementById("usr-management").style.display = "block";
+        fetch(`${API}/logincheck/me`, { headers: { 'x-session-token': token } })
+            .then(r => {
+                if (!r.ok) { clearAndRedirect(); return; }
+                document.body.classList.remove('auth-pending');
+                setAdminUI();
+                Promise.all([loadAccounts(), loadAdminList()]);
+            })
+            .catch(() => {
+                document.body.classList.remove('auth-pending');
+                setAdminUI();
+                Promise.all([loadAccounts(), loadAdminList()]);
+            });
+    }
+
+}
 function clearAndRedirect() {
     localStorage.removeItem('sessionToken'); localStorage.removeItem('adminEmail');
     window.location.href = 'index.html';
@@ -37,6 +69,28 @@ function setAdminUI() {
     if (e) e.textContent = adminEmail || '—';
     if (a) a.textContent = adminEmail ? adminEmail[0].toUpperCase() : '?';
 }
+
+// ══════════════════════════════════════════════════
+//  ACCOUNTS
+// ══════════════════════════════════════════════════
+
+function loadAllAccounts() {
+    showLoading(true);
+    fetch(`${API}/auth/accounts`, { headers: authH() })
+        .then(r => { if (r.status === 401) { clearAndRedirect(); return null; } return r.json(); })
+        .then(data => {
+            if (!data) return;
+            allAccounts = data.accounts || [];
+            if (!allAccounts.length) {
+                showError('No Google Ads accounts connected. Go to Account Management to connect one.');
+                return;
+            }
+            buildAccountDropdown(allAccounts);
+            selectAccount(allAccounts[0]);
+        })
+        .catch(err => showError(err.message || 'Failed to load accounts'));
+}
+
 document.getElementById('btn-logout')?.addEventListener('click', async () => {
     try { await fetch(`${API}/logincheck/logout`, { method: 'POST', headers: { 'x-session-token': token } }); } catch { }
     clearAndRedirect();
@@ -372,6 +426,13 @@ function showLoading(state) {
     const tb = document.getElementById('table-inner');
     if (ld) ld.style.display = state ? 'flex' : 'none';
     if (tb) tb.style.display = state ? 'none' : 'block';
+}
+
+function showError(msg) {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('table-inner').style.display = 'none';
+    document.getElementById('error-box').style.display = 'flex';
+    document.getElementById('error-msg').textContent = typeof msg === 'object' ? JSON.stringify(msg) : "No Data Found";
 }
 
 let toastTimer;
