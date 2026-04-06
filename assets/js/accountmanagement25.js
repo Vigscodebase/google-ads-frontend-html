@@ -99,15 +99,26 @@ document.getElementById('btn-logout')?.addEventListener('click', async () => {
 // Google OAuth
 const CLIENT_ID = '476397425230-589marau60i4fog9skjabvimr5pihfgd.apps.googleusercontent.com';
 const REDIRECT_URI = encodeURIComponent(`${API}/auth/oauth/callback`);
-const SCOPE = encodeURIComponent('https://www.googleapis.com/auth/adwords');
+const SCOPE = encodeURIComponent(
+    [
+        'https://www.googleapis.com/auth/adwords',
+        'https://www.googleapis.com/auth/userinfo.profile',
+        'https://www.googleapis.com/auth/userinfo.email'
+    ].join(' ')
+);
 
 document.getElementById('btn-google')?.addEventListener('click', () => {
     const state = crypto.randomUUID();
     localStorage.setItem('oauth_state', state);
+
     window.location.href =
         `https://accounts.google.com/o/oauth2/v2/auth?client_id=${CLIENT_ID}` +
-        `&redirect_uri=${REDIRECT_URI}&response_type=code&scope=${SCOPE}` +
-        `&access_type=offline&prompt=consent&state=${state}`;
+        `&redirect_uri=${REDIRECT_URI}` +
+        `&response_type=code` +
+        `&scope=${SCOPE}` +
+        `&access_type=offline` +
+        `&prompt=consent` +
+        `&state=${state}`;
 });
 
 const authH = () => ({ 'x-session-token': token });

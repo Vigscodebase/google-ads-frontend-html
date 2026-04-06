@@ -253,18 +253,58 @@ function loadCampaigns(userId, customerId) {
         .catch(err => showError(err.message || 'Failed to load campaigns'));
 }
 
-function renderStats(campaigns) {
-    let spend = 0, impr = 0, clicks = 0, active = 0;
-    campaigns.forEach(c => {
-        spend += Number(c.metrics?.costMicros || 0);
-        impr += Number(c.metrics?.impressions || 0);
-        clicks += Number(c.metrics?.clicks || 0);
-        if (c.campaign.status === 'ENABLED') active++;
+function fmtCurrency(val) {
+    return '$' + Number(val).toLocaleString(undefined, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
     });
+}
+
+// function renderStats(campaigns) {
+//     let spend = 0, impr = 0, clicks = 0, active = 0;
+//     campaigns.forEach(c => {
+//         spend += Number(c.metrics?.costMicros || 0);
+//         impr += Number(c.metrics?.impressions || 0);
+//         clicks += Number(c.metrics?.clicks || 0);
+//         if (c.campaign.status === 'ENABLED') active++;
+//     });
+//     document.getElementById('stat-spend').textContent = fmtSpend(spend);
+//     document.getElementById('stat-impr').textContent = fmtNum(impr);
+//     document.getElementById('stat-clicks').textContent = fmtNum(clicks);
+//     document.getElementById('stat-active').textContent = active;
+//     document.getElementById('stat-total-sub').textContent = `of ${campaigns.length} total`;
+// }
+
+function renderStats(campaigns) {
+    let spend = 0, impr = 0, clicks = 0, active = 0, revenue = 0;
+
+    campaigns.forEach(c => {
+        const m = c.metrics || {};
+
+        // Summing values - using Number() to handle strings/nulls
+        spend += Number(m.costMicros || 0);
+        impr += Number(m.impressions || 0);
+        clicks += Number(m.clicks || 0);
+
+        // Use conversionsValue (CamelCase as returned by API)
+        // If it's missing from the JSON, it defaults to 0
+        revenue += Number(m.conversionsValue || 0);
+
+        if (c.campaign?.status === 'ENABLED') active++;
+    });
+
+    // Update the HTML elements
     document.getElementById('stat-spend').textContent = fmtSpend(spend);
     document.getElementById('stat-impr').textContent = fmtNum(impr);
     document.getElementById('stat-clicks').textContent = fmtNum(clicks);
     document.getElementById('stat-active').textContent = active;
+
+    // NEW: Update the Revenue field
+    const revenueEl = document.getElementById('stat-revenue');
+    if (revenueEl) {
+        revenueEl.textContent = fmtCurrency(revenue);
+    }
+
     document.getElementById('stat-total-sub').textContent = `of ${campaigns.length} total`;
 }
 

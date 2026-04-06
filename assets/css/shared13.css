@@ -267,7 +267,7 @@ body.auth-pending {
 /* ── Stats grid ── */
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     gap: 14px;
     margin-bottom: 28px;
     animation: fadeUp 0.4s 0.08s ease both;
@@ -314,6 +314,10 @@ body.auth-pending {
 
 .stat-card.coral {
     border-top-color: var(--coral);
+}
+
+.stat-card.amberlight {
+    border-top-color: var(--amber);
 }
 
 .stat-label {
