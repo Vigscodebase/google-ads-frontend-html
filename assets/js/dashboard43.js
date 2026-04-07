@@ -52,8 +52,10 @@ if (!token) {
                 loadAllAccounts();
             });
     } else if (decoded) {
-        // window.location.href = 'dashboard.html';
-        document.getElementById("usr-management").style.display = "block";
+        if (currentPage === "usermanagement.html") {
+            // window.location.href = 'dashboard.html';
+            document.getElementById("usr-management").style.display = "block";
+        }
         fetch(`${API}/logincheck/me`, { headers: { 'x-session-token': token } })
             .then(r => {
                 if (!r.ok) { clearAndRedirect(); return; }
@@ -403,3 +405,29 @@ document.getElementById('btn-logout').addEventListener('click', async () => {
     try { await fetch(`${API}/logincheck/logout`, { method: 'POST', headers: { 'x-session-token': token } }); } catch { }
     clearAndRedirect();
 });
+
+document.addEventListener("DOMContentLoaded", function () {
+    // const toggle = document.getElementById("googleAdsToggle");
+    const newsbreaktoggle = document.getElementById("newsBreakToggle");
+    // const dropdown = toggle.parentElement;
+    const newsbreakdropdown = newsbreaktoggle.parentElement;
+
+    // toggle.addEventListener("click", function () {
+    //     dropdown.classList.toggle("open");
+    // });
+
+    newsbreaktoggle.addEventListener("click", function () {
+        newsbreakdropdown.classList.toggle("open");
+    });
+});
+
+// async function getIntegratedReport() {
+//     await fetch(`${API}/ads/integrated-report`, { headers: { 'Content-Type': "application/json" }, method: "POST" })
+//         .then(r => {
+//             console.log(r)
+//         })
+//         .catch(() => {
+
+//         });
+// }
+// getIntegratedReport()

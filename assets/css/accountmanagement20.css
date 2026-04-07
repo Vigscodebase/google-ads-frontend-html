@@ -774,6 +774,84 @@
     box-shadow: 0 2px 8px rgba(220, 38, 38, 0.25);
 }
 
+.dropdown-toggle:hover {
+    color: var(--blue);
+    background: var(--blue-lt);
+}
+
+/* .nav-icon {
+    margin-right: 10px;
+} */
+
+/* Dropdown */
+.dropdown-menu {
+    display: none;
+    flex-direction: column;
+    margin-left: 20px;
+    margin-top: 5px;
+}
+
+.nav-sub-item {
+    padding: 8px 10px;
+    color: var(--text-sec);
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.nav-sub-item:hover {
+    color: var(--blue);
+    background: var(--blue-lt);
+}
+
+/* Arrow animation */
+.arrow {
+    margin-left: auto;
+    transition: transform 0.3s ease;
+}
+
+.dropdown.open .arrow {
+    transform: rotate(90deg);
+}
+
+.dropdown .arrow-down {
+    display: none;
+}
+
+.dropdown.open .arrow-down {
+    display: block;
+}
+
+/* Show dropdown */
+.dropdown.open .dropdown-menu {
+    display: flex;
+    width: 100%;
+}
+
+.dropdown .arrow-right {
+    display: block;
+}
+
+.dropdown.open .arrow-right {
+    display: none;
+}
+
+.children-dropdown {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.dropdown-toggle {
+    display: flex;
+    gap: 9px;
+}
+
+.dropdown-toggle:hover {
+    color: var(--blue);
+}
+
 @media (max-width: 960px) {
 
     .table-head.acc-grid,

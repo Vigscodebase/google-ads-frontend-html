@@ -296,7 +296,10 @@ if (!token) {
             });
     } else {
         // window.location.href = 'accountmanagement.html';
-        document.getElementById("usr-management").style.display = "block";
+        // if (currentPage === "usermanagement.html") {
+        //     // window.location.href = 'dashboard.html';
+        //     document.getElementById("usr-management").style.display = "block";
+        // }
         fetch(`${API}/logincheck/me`, { headers: { 'x-session-token': token } })
             .then(r => {
                 if (!r.ok) { clearAndRedirect(); return; }
@@ -338,3 +341,18 @@ function showLoading(state) {
     if (ld) ld.style.display = state ? 'flex' : 'none';
     if (tb) tb.style.display = state ? 'none' : 'block';
 }
+
+document.addEventListener("DOMContentLoaded", function () {
+    // const toggle = document.getElementById("googleAdsToggle");
+    const newsbreaktoggle = document.getElementById("newsBreakToggle");
+    // const dropdown = toggle.parentElement;
+    const newsbreakdropdown = newsbreaktoggle.parentElement;
+
+    // toggle.addEventListener("click", function () {
+    //     dropdown.classList.toggle("open");
+    // });
+
+    newsbreaktoggle.addEventListener("click", function () {
+        newsbreakdropdown.classList.toggle("open");
+    });
+});
