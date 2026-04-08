@@ -188,7 +188,8 @@ function buildAccountDropdown(accounts) {
     const sel = document.getElementById('account-select');
     sel.innerHTML = '';
     accounts.forEach(acc => {
-        const label = acc.googleEmail || acc.googleName || acc.userId || 'Unknown Account';
+        // const label = acc.googleEmail || acc.googleName || acc.userId || 'Unknown Account';
+        const label = acc.googleName || acc.googleEmail || 'Unknown Account';
         const opt = document.createElement('option');
         opt.value = acc.userId;
         opt.textContent = label;
@@ -207,10 +208,18 @@ function selectAccount(acc) {
     document.getElementById('account-select').value = acc.userId;
     showLoading(true);
     const cachedCids = acc.customerIds || [];
+    console.log(cachedCids)
     if (cachedCids.length) {
-        activeCustomerId = cachedCids[0];
-        updateCidLabel(activeCustomerId);
-        loadCampaigns(activeUserId, activeCustomerId);
+        // activeCustomerId = cachedCids[0];
+        // updateCidLabel(activeCustomerId);
+        // loadCampaigns(activeUserId, activeCustomerId);
+        (async () => {
+            for (const cid of cachedCids) {
+                activeCustomerId = cid;
+                updateCidLabel(cid);
+                await loadCampaigns(activeUserId, cid);
+            }
+        })();
     } else {
         fetch(`${API}/auth/customers?userId=${activeUserId}`, { headers: authH() })
             .then(r => r.json())

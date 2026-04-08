@@ -84,6 +84,7 @@ function loadAllAccounts() {
         .then(data => {
             if (!data) return;
             allAccounts = data.accounts || [];
+            console.log(allAccounts)
             if (!allAccounts.length) {
                 showError('No Google Ads accounts connected. Go to Account Management to connect one.');
                 return;
