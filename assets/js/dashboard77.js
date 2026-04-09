@@ -142,7 +142,9 @@ function updatePeriodChip() {
     }
     // Update the stat-spend-sub label too
     const sub = document.getElementById('stat-spend-sub');
+    const srevub = document.getElementById('stat-revenue-sub')
     if (sub) sub.textContent = chip.textContent;
+    if (srevub) srevub.textContent = chip.textContent;
 }
 
 function buildCampaignUrl(userId, customerId) {
@@ -198,39 +200,58 @@ function buildAccountDropdown(accounts) {
     });
 }
 
+function selectCustomer(cid) {
+    activeCustomerId = cid;
+    updateCidLabel(cid);
+    showLoading(true);
+    loadCampaigns(activeUserId, cid);
+}
+
 document.getElementById('account-select').addEventListener('change', function () {
     const acc = allAccounts.find(a => a.userId === this.value);
     if (acc) selectAccount(acc);
 });
+
+document.getElementById('customer-select').addEventListener('change', function () {
+    selectCustomer(this.value);
+});
+
+function buildCustomerDropdown(cids) {
+    const sel = document.getElementById('customer-select');
+    sel.innerHTML = '';
+
+    cids.forEach(cid => {
+        const opt = document.createElement('option');
+        opt.value = cid;
+        opt.textContent = cid;
+        sel.appendChild(opt);
+    });
+
+    // auto-select first customer
+    if (cids.length) {
+        sel.value = cids[0];
+        selectCustomer(cids[0]);
+    }
+}
 
 function selectAccount(acc) {
     activeUserId = acc.userId;
     document.getElementById('account-select').value = acc.userId;
     showLoading(true);
     const cachedCids = acc.customerIds || [];
-    console.log(cachedCids)
     if (cachedCids.length) {
-        // activeCustomerId = cachedCids[0];
-        // updateCidLabel(activeCustomerId);
-        // loadCampaigns(activeUserId, activeCustomerId);
-        (async () => {
-            for (const cid of cachedCids) {
-                activeCustomerId = cid;
-                updateCidLabel(cid);
-                await loadCampaigns(activeUserId, cid);
-            }
-        })();
+        buildCustomerDropdown(cachedCids);
     } else {
         fetch(`${API}/auth/customers?userId=${activeUserId}`, { headers: authH() })
             .then(r => r.json())
             .then(data => {
                 const cids = data.customerIds || [];
                 if (!cids.length) throw new Error('No Customer IDs for this account.');
-                activeCustomerId = cids[0];
-                updateCidLabel(activeCustomerId);
-                loadCampaigns(activeUserId, activeCustomerId);
+                buildCustomerDropdown(cids);
             })
-            .catch(err => showError(err.message));
+            .catch(err => {
+                showError(err.data.error.details)
+            });
     }
 }
 
@@ -253,7 +274,7 @@ function loadCampaigns(userId, customerId) {
             allCampaigns = data.results || [];
             filteredCampaigns = allCampaigns;
             renderStats(allCampaigns);
-            renderCampaigns(allCampaigns);
+            renderCampaigns(allCampaigns, userId, customerId);
             document.getElementById('count-chip').textContent = allCampaigns.length;
             document.getElementById('footer-count').textContent = allCampaigns.length + ' records';
             document.getElementById('meta-time').textContent =
@@ -261,7 +282,9 @@ function loadCampaigns(userId, customerId) {
             updatePeriodChip();
             showLoading(false);
         })
-        .catch(err => showError(err.message || 'Failed to load campaigns'));
+        .catch(err => {
+            showError(err.message || 'Failed to load campaigns')
+        });
 }
 
 function fmtCurrency(val) {
@@ -299,6 +322,11 @@ function renderStats(campaigns) {
 
         // Use conversionsValue (CamelCase as returned by API)
         // If it's missing from the JSON, it defaults to 0
+
+        if (!m.conversionsValue) {
+            console.log('No conversion value for campaign:', c.campaign?.name);
+        }
+
         revenue += Number(m.conversionsValue || 0);
 
         if (c.campaign?.status === 'ENABLED') active++;
@@ -352,7 +380,38 @@ function fmtCTR(v) {
     return (v * 100).toFixed(2) + '%';
 }
 
-function renderCampaigns(list) {
+// function renderCampaigns(list) {
+//     const el = document.getElementById('campaign-list');
+//     const empty = document.getElementById('empty');
+//     if (!list.length) { el.innerHTML = ''; empty.style.display = 'block'; return; }
+//     empty.style.display = 'none';
+//     el.innerHTML = list.map((c, i) => {
+//         const t = getType(c.campaign.name);
+//         const st = getStatus(c.campaign.status);
+//         const spend = fmtSpend(c.metrics?.costMicros);
+//         const impr = fmtNum(c.metrics?.impressions);
+//         const clicks = fmtNum(c.metrics?.clicks);
+//         const ctr = fmtCTR(c.metrics?.ctr);
+//         return `
+//         <div class="campaign-row" style="animation-delay:${i * 22}ms">
+//             <div class="cell-num">${String(i + 1).padStart(2, '0')}</div>
+//             <div class="cell-name">
+//                 <div class="name-main" title="${c.campaign.name}">${c.campaign.name}</div>
+//                 <div class="name-id">${c.campaign.id}</div>
+//             </div>
+//             <div><span class="badge ${t.cls}"><span class="badge-dot"></span>${t.label}</span></div>
+//             <div class="cell-metric spend">
+//                 ${spend}
+//                 <div class="metric-sub">${st.label ? `<span class="status-pill ${st.cls}">${st.label}</span>` : ''}</div>
+//             </div>
+//             <div class="cell-metric">${impr}</div>
+//             <div class="cell-metric col-clicks">${clicks}</div>
+//             <div class="cell-metric right col-ctr">${ctr}</div>
+//         </div>`;
+//     }).join('');
+// }
+
+function renderCampaigns(list, userId, customerId) {
     const el = document.getElementById('campaign-list');
     const empty = document.getElementById('empty');
     if (!list.length) { el.innerHTML = ''; empty.style.display = 'block'; return; }
@@ -365,21 +424,32 @@ function renderCampaigns(list) {
         const clicks = fmtNum(c.metrics?.clicks);
         const ctr = fmtCTR(c.metrics?.ctr);
         return `
-        <div class="campaign-row" style="animation-delay:${i * 22}ms">
-            <div class="cell-num">${String(i + 1).padStart(2, '0')}</div>
-            <div class="cell-name">
-                <div class="name-main" title="${c.campaign.name}">${c.campaign.name}</div>
-                <div class="name-id">${c.campaign.id}</div>
-            </div>
-            <div><span class="badge ${t.cls}"><span class="badge-dot"></span>${t.label}</span></div>
-            <div class="cell-metric spend">
-                ${spend}
-                <div class="metric-sub">${st.label ? `<span class="status-pill ${st.cls}">${st.label}</span>` : ''}</div>
-            </div>
-            <div class="cell-metric">${impr}</div>
-            <div class="cell-metric col-clicks">${clicks}</div>
-            <div class="cell-metric right col-ctr">${ctr}</div>
-        </div>`;
+       <div class="campaign-row"
+     style="animation-delay:${i * 22}ms"
+     onclick="openCampaignModal(${c.campaign.id}, '${userId}', '${customerId}')">
+
+    <div class="cell-num">${String(i + 1).padStart(2, '0')}</div>
+
+    <div class="cell-name">
+        <div class="name-main">${c.campaign.name}</div>
+        <div class="name-id">${c.campaign.id}</div>
+    </div>
+
+    <div><span class="badge ${t.cls}">
+        <span class="badge-dot"></span>${t.label}
+    </span></div>
+
+    <div class="cell-metric spend">
+        ${spend}
+        <div class="metric-sub">
+            ${st.label ? `<span class="status-pill ${st.cls}">${st.label}</span>` : ''}
+        </div>
+    </div>
+
+    <div class="cell-metric">${impr}</div>
+    <div class="cell-metric col-clicks">${clicks}</div>
+    <div class="cell-metric right col-ctr">${ctr}</div>
+</div>`;
     }).join('');
 }
 
@@ -429,6 +499,84 @@ document.addEventListener("DOMContentLoaded", function () {
         newsbreakdropdown.classList.toggle("open");
     });
 });
+
+function updateCampaign() {
+    const status = document.getElementById('update-status').value;
+
+    fetch(`${API}/auth/update-campaign`, {
+        method: 'POST',
+        headers: {
+            ...authH(),
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            campaignId: selectedCampaignId,
+            status
+        })
+    })
+        .then(res => res.json())
+        .then(() => {
+            alert('Campaign updated');
+            closeModal();
+            loadCampaigns(currentUserId, currentCustomerId);
+        })
+        .catch(() => alert('Update failed'));
+}
+
+function renderCampaignDetails(data) {
+    const c = data.results?.[0];
+    if (!c) return;
+
+    const body = document.getElementById('modal-body');
+
+    body.innerHTML = `
+    <div class="form-group">
+        <label>Name:</label>
+         <input type="text" value="${c.campaign.name}" id="editcampname">
+    </div>
+
+    <div class="form-group">
+        <label>Budget:</label>
+        <input type="text" value="$${c.campaignBudget?.amountMicros || 'N/A'}" id="editcampname">
+    </div>
+
+    <div class="form-group">
+        <label>Status:</label>
+        <select id="update-status">
+            <option value="ENABLED" ${c.campaign.status === 'ENABLED' ? 'selected' : ''}>Enabled</option>
+            <option value="PAUSED" ${c.campaign.status === 'PAUSED' ? 'selected' : ''}>Paused</option>
+        </select>
+    </div>
+    `;
+}
+
+let selectedCampaignId = null;
+
+function openCampaignModal(campaignId, userId, customerId) {
+    selectedCampaignId = campaignId;
+    console.log(campaignId)
+    console.log(userId)
+    const modal = document.getElementById('campaign-modal');
+    const body = document.getElementById('modal-body');
+
+    modal.style.display = 'block';
+    body.innerHTML = 'Loading...';
+
+    fetch(`${API}/auth/single-campaign?campaignId=${campaignId}&userId=${userId}&customerId=${customerId}`, {
+        headers: authH(), method: 'GET',
+    })
+        .then(res => res.json())
+        .then(data => {
+            renderCampaignDetails(data);
+        })
+        .catch(err => {
+            body.innerHTML = 'Failed to load campaign';
+        });
+}
+
+function closeModal() {
+    document.getElementById('campaign-modal').style.display = 'none';
+}
 
 // async function getIntegratedReport() {
 //     await fetch(`${API}/ads/integrated-report`, { headers: { 'Content-Type': "application/json" }, method: "POST" })

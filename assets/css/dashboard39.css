@@ -192,7 +192,7 @@
     color: var(--blue);
 }
 
-.account-selector-wrap {
+.dashboard-dropdown-wrapper {
     display: flex;
     align-items: center;
     gap: 10px;
@@ -267,6 +267,7 @@
 
 .campaign-row:hover {
     background: var(--blue-lt);
+    cursor: pointer;
 }
 
 @keyframes rowSlide {
@@ -526,6 +527,192 @@
     align-items: flex-start;
 }
 
+.customer-select {
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    background: var(--surface);
+    border: 1.5px solid var(--blue);
+    border-radius: var(--radius);
+    padding: 7px 32px 7px 12px;
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%232563eb' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    box-shadow: var(--shadow-xs);
+    transition: border-color 0.15s, box-shadow 0.15s;
+    min-width: 220px;
+    max-width: 340px;
+}
+
+.account-select:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px var(--blue-glow);
+}
+
+.account-select:hover {
+    border-color: var(--blue);
+}
+
+.account-select option {
+    font-size: 13px;
+}
+
+.customer-selector-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-sec);
+    white-space: nowrap;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+}
+
+.modal-content {
+    background: #fff;
+    margin: 8% auto;
+    padding: 20px;
+    width: 500px;
+    border-radius: 10px;
+    animation: fadeIn 0.2s ease;
+}
+
+.close {
+    float: right;
+    font-size: 22px;
+    cursor: pointer;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+#modal-title {
+    color: #4a5568;
+    margin-bottom: 25px;
+    font-size: 22px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    color: #4a5568;
+    font-weight: 500;
+}
+
+.modal input,
+.modal select {
+    margin-top: 6px;
+}
+
+#campaign-modal .form-group input {
+    font-size: 15px;
+}
+
+input,
+select {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: border-color 0.3s;
+}
+
+input:focus,
+select:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+input::placeholder {
+    color: #a0aec0;
+    font-size: 13px;
+}
+
+input:focus,
+select:focus {
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.15);
+}
+
+.modal .btn-primary,
+.modal .btn-secondary,
+.modal .btn-danger {
+    width: auto;
+    min-width: 100px;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 14px 30px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    width: 100%;
+    transition: transform 0.2s;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+}
+
+.close {
+    /* position: absolute;
+    right: 15px;
+    top: 10px; */
+    font-size: 26px;
+    cursor: pointer;
+    color: #999;
+}
+
+.close:hover {
+    color: #333;
+}
+
+.account-selector-wrap {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    align-items: center;
+}
+
+.customer-selector-wrap {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    align-items: center;
+}
+
+.stat-value.amberlight {
+    color: var(--amber);
+}
+
 @media (max-width: 1100px) {
     .stats-grid {
         grid-template-columns: repeat(2, 1fr);
@@ -557,4 +744,13 @@
 
 .cell-metric.right {
     text-align: right;
+}
+
+@media (max-width: 480px) {
+
+    .modal .btn-primary,
+    .modal .btn-secondary,
+    .modal .btn-danger {
+        width: 100%;
+    }
 }

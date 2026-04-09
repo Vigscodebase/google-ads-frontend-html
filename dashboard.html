@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Dashboard — Campaign Intelligence</title>
         <link rel="stylesheet" href="assets/css/shared13.css">
-        <link rel="stylesheet" href="assets/css/dashboard24.css">
+        <link rel="stylesheet" href="assets/css/dashboard39.css">
     </head>
     <body class="auth-pending">
 
@@ -86,7 +86,8 @@
                     </div>
 
                     <!-- Other Menu Items -->
-                    <a id="usr-management" class="nav-item" href="usermanagement.html">
+                    <a id="usr-management" class="nav-item"
+                        href="usermanagement.html">
                         <span class="nav-icon">⊞</span>User Management
                     </a>
 
@@ -119,12 +120,23 @@
                 </div>
 
                 <!-- Account selector -->
-                <div class="account-selector-wrap" style="margin-bottom:16px;">
-                    <span class="account-selector-label">Showing campaigns
-                        for:</span>
-                    <select class="account-select" id="account-select">
-                        <option>Loading accounts…</option>
-                    </select>
+                <div class="dashboard-dropdown-wrapper">
+                    <div class="account-selector-wrap"
+                        style="margin-bottom:16px;">
+                        <span class="account-selector-label">Showing campaigns
+                            for:</span>
+                        <select class="account-select" id="account-select">
+                            <option>Loading accounts…</option>
+                        </select>
+                    </div>
+                    <div class="customer-selector-wrap"
+                        style="margin-bottom:16px;">
+                        <span class="customer-selector-label">Showing customers
+                            for:</span>
+                        <select class="customer-select" id="customer-select">
+                            <option>Loading customers…</option>
+                        </select>
+                    </div>
                 </div>
 
                 <!-- ── DATE FILTER BAR ── -->
@@ -151,7 +163,6 @@
                 <div class="custom-range-wrap" id="custom-range-wrap">
                     <label>From</label>
                     <input type="date" id="date-start" />
-                    <span class="custom-range-sep">→</span>
                     <label>To</label>
                     <input type="date" id="date-end" />
                     <button class="btn-apply-range"
@@ -168,7 +179,10 @@
                     </div>
                     <div class="stat-card amberlight">
                         <div class="stat-label">Revenue</div>
-                        <div class="stat-value" id="stat-revenue">$0</div>
+                        <div class="stat-value amberlight"
+                            id="stat-revenue">—</div>
+                        <div class="stat-sub" id="stat-revenue-sub">Last 30
+                            Days</div>
                     </div>
 
                     <!-- <div class="stat">
@@ -243,12 +257,28 @@
                 </div>
 
             </main>
+            <!-- Campaign View Modal -->
+            <div id="campaign-modal" class="modal">
+                <div class="modal-content">
+                    <span class="close" onclick="closeModal()">&times;</span>
+
+                    <h2 id="modal-title">Campaign Details</h2>
+
+                    <div id="modal-body">
+                        <p>Loading...</p>
+                    </div>
+
+                    <button class="btn-primary"
+                        onclick="updateCampaign()">Update</button>
+                </div>
+            </div>
+
         </div>
 
         <script
             src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
         <script
             src="https://cdn.jsdelivr.net/npm/jwt-decode@4.0.0/build/cjs/index.min.js"></script>
-        <script src="assets/js/dashboard46.js"></script>
+        <script src="assets/js/dashboard77.js"></script>
     </body>
 </html>
