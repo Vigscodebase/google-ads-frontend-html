@@ -32,7 +32,7 @@ async function loadUserList() {
 
                 <div>
                     <button class="action-btn edit-btn" onclick="openEdit('${u.id}')">Edit</button>
-                    <button class="action-btn delete-btn" onclick="openDelete('${u.id}')">Delete</button>
+                   <!-- <button class="action-btn delete-btn" onclick="openDelete('${u.id}')">Delete</button> -->
                 </div>
             </div>
         `).join('');
