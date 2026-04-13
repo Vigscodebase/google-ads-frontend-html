@@ -171,7 +171,7 @@ function setAdminUI() {
 
 function loadAllAccounts() {
     showLoading(true);
-    fetch(`${API}/auth/accounts`, { headers: authH() })
+    fetch(`${API}/auth/accounts?adminEmail=${adminEmail}`, { headers: authH() })
         .then(r => { if (r.status === 401) { clearAndRedirect(); return null; } return r.json(); })
         .then(data => {
             if (!data) return;

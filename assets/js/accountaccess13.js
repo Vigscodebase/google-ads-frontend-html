@@ -17,12 +17,15 @@ function setAdminUI() {
 const authH = () => ({ 'x-session-token': token });
 
 async function loadAccounts() {
-    const res = await fetch(`${API}/auth/oauth/list`, { headers: authH() });
+    const res = await fetch(`${API}/auth/oauth/list`, { method: 'GET', headers: authH() });
     const data = await res.json();
 
     const container = document.getElementById('userList');
+    document.getElementById('count-chip').textContent = data.allUserIds.length
 
-    data.allUserIds.forEach(userId => {
+    data.allUserIds.forEach(async userId => {
+        const oauthuser_res = await fetch(`${API}/auth/get-oauth-name?userId=${userId}`, { method: 'GET', headers: authH() });
+        const oauthuser_data = await oauthuser_res.json();
         const div = document.createElement('div');
         div.className = 'user-item';
 
@@ -57,7 +60,7 @@ async function loadAccounts() {
         });
 
         const label = document.createElement('label');
-        label.innerText = userId;
+        label.innerText = oauthuser_data.data.googleName;
 
         div.appendChild(checkbox);
         div.appendChild(label);
@@ -91,11 +94,11 @@ if (!token) {
             .then(r => {
                 if (!r.ok) { clearAndRedirect(); return; }
                 document.body.classList.remove('auth-pending');
-                Promise.all([loadAccounts(), loadAdminList()]);
+                Promise.all([loadAccounts(), setAdminUI()]);
             })
             .catch(() => {
                 document.body.classList.remove('auth-pending');
-                Promise.all([loadAccounts(), loadAdminList()]);
+                Promise.all([loadAccounts(), setAdminUI()]);
             });
     } else {
         // window.location.href = 'accountmanagement.html';
@@ -107,11 +110,11 @@ if (!token) {
             .then(r => {
                 if (!r.ok) { clearAndRedirect(); return; }
                 document.body.classList.remove('auth-pending');
-                Promise.all([loadAccounts()]);
+                Promise.all([loadAccounts(), setAdminUI()]);
             })
             .catch(() => {
                 document.body.classList.remove('auth-pending');
-                Promise.all([loadAccounts()]);
+                Promise.all([loadAccounts(), setAdminUI()]);
             });
     }
 

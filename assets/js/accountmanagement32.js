@@ -79,7 +79,7 @@ function setAdminUI() {
 
 function loadAllAccounts() {
     showLoading(true);
-    fetch(`${API}/auth/accounts`, { headers: authH() })
+    fetch(`${API}/auth/accounts?adminEmail=${adminEmail}`, { headers: authH() })
         .then(r => { if (r.status === 401) { clearAndRedirect(); return null; } return r.json(); })
         .then(data => {
             if (!data) return;
@@ -176,7 +176,7 @@ function loadAdminList() {
 // ── Load & render accounts ────────────────────────────────────────────────────
 function loadAccounts() {
     showLoading(true);
-    return fetch(`${API}/auth/accounts`, { headers: authH() })
+    return fetch(`${API}/auth/accounts?adminEmail=${adminEmail}`, { headers: authH() })
         .then(r => { if (r.status === 401) { clearAndRedirect(); return null; } return r.json(); })
         .then(data => {
             if (!data) return;
@@ -250,9 +250,9 @@ function renderAccounts(list) {
 
             <div class="cids-wrap col-cids">${cidsHtml}</div>
 
-            <div class="col-access">
+            <!-- <div class="col-access">
                 <div class="access-summary">${accessSummary}</div>
-            </div>
+            </div> -->
 
             <div class="cell-date col-date">${added}</div>
 

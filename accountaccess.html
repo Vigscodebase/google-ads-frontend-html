@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Account Acess — Campaign Intelligence</title>
         <link rel="stylesheet" href="assets/css/shared14.css">
-        <link rel="stylesheet" href="assets/css/accountaccess1.css">
+        <link rel="stylesheet" href="assets/css/accountaccess2.css">
     </head>
     <body class="auth-pending">
 
@@ -42,7 +42,7 @@
                     <!-- Newsbreak Dropdown -->
                     <div class="nav-item dropdown children-dropdown">
                         <div class="dropdown-toggle" id="newsBreakToggle">
-                            <span class="nav-icon">⊞</span> News Break
+                            <span class="nav-icon">⊞</span> Google Ads
                             <span class="arrow-right">▸</span>
                             <span class="arrow-down">▾</span>
                         </div>
@@ -55,10 +55,10 @@
                                 href="accountmanagement.html">
                                 <span class="nav-icon">⊞</span> Accounts
                             </a>
-                            <a class="nav-sub-item"
+                            <!-- <a class="nav-sub-item"
                                 href="reports.html">
                                 <span class="nav-icon">⊞</span> Reports
-                            </a>
+                            </a> -->
                         </div>
                     </div>
 
@@ -94,7 +94,14 @@
                     </div>
                 </div>
 
-                <div id="userList"></div>
+                <div class="toolbar">
+                    <div class="toolbar-left">
+                        <span class="toolbar-title">All Accounts</span>
+                        <span class="count-chip" id="count-chip">…</span>
+                    </div>
+                </div>
+
+                <div id="userList" class="table-wrap"></div>
 
                 <div class="page-footer">
                     <span>Google Ads API · Account Manager</span>
@@ -109,6 +116,6 @@
 </script>
             <script
                 src="https://cdn.jsdelivr.net/npm/jwt-decode@4.0.0/build/cjs/index.min.js"></script>
-            <script src="assets/js/accountaccess6.js"></script>
+            <script src="assets/js/accountaccess13.js"></script>
         </body>
     </html>
