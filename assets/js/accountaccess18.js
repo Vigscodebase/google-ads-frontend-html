@@ -23,6 +23,12 @@ async function loadAccounts() {
     const container = document.getElementById('userList');
     document.getElementById('count-chip').textContent = data.allUserIds.length
 
+    const empty = document.getElementById('empty');
+    if (!container) return;
+    if (!data.allUserIds.length) { container.innerHTML = ''; container.style.display = 'none'; if (empty) empty.style.display = 'block'; return; }
+    if (data.allUserIds.length > 1)  {container.style.display = 'block';}
+    if (empty) empty.style.display = 'none';
+
     data.allUserIds.forEach(async userId => {
         const oauthuser_res = await fetch(`${API}/auth/get-oauth-name?userId=${userId}`, { method: 'GET', headers: authH() });
         const oauthuser_data = await oauthuser_res.json();

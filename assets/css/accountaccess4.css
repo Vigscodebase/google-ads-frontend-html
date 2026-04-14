@@ -1,0 +1,16 @@
+.user-item {
+  display: flex;
+  gap: 7px;
+  margin: 10px;
+}
+
+.accountaccess-empty-text {
+  background: #fff;
+  border-radius: 12px;
+  font-size: 12px;
+  color: var(--muted);
+  letter-spacing: 0.5px;
+  padding: 48px;
+  text-align: center;
+  font-weight: 500;
+}

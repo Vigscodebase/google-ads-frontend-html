@@ -270,11 +270,11 @@ function loadCampaigns(userId, customerId) {
         .then(r => { if (r.status === 401) { clearAndRedirect(); return null; } return r.json(); })
         .then(data => {
             if (!data) return;
-            if (data.error) throw new Error(data.error);
+            //if (data.error) throw new Error(data.error);
             allCampaigns = data.results || [];
             filteredCampaigns = allCampaigns;
             renderStats(allCampaigns);
-            renderCampaigns(allCampaigns, userId, customerId);
+            renderCampaigns(allCampaigns, userId, customerId, data);
             document.getElementById('count-chip').textContent = allCampaigns.length;
             document.getElementById('footer-count').textContent = allCampaigns.length + ' records';
             document.getElementById('meta-time').textContent =
@@ -324,7 +324,7 @@ function renderStats(campaigns) {
         // If it's missing from the JSON, it defaults to 0
 
         if (!m.conversionsValue) {
-            console.log('No conversion value for campaign:', c.campaign?.name);
+            //console.log('No conversion value for campaign:', c.campaign?.name);
         }
 
         revenue += Number(m.conversionsValue || 0);
@@ -411,10 +411,15 @@ function fmtCTR(v) {
 //     }).join('');
 // }
 
-function renderCampaigns(list, userId, customerId) {
+function renderCampaigns(list, userId, customerId, data) {
     const el = document.getElementById('campaign-list');
     const empty = document.getElementById('empty');
-    if (!list.length) { el.innerHTML = ''; empty.style.display = 'block'; return; }
+    if (data.errors) {
+        const errorHtml = data.errors
+            .map(item => item.error.message)
+            .join('<br>');
+        if (!list.length) { el.innerHTML = ''; empty.style.display = 'block'; empty.innerHTML = errorHtml; return; }
+    }
     empty.style.display = 'none';
     el.innerHTML = list.map((c, i) => {
         const t = getType(c.campaign.name);

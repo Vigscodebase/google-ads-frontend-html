@@ -595,6 +595,12 @@ button:active {
     animation: modalPop 0.2s ease;
 }
 
+.adduser-info {
+    color: red;
+    font-weight: 500;
+    font-size: 0.8rem;
+}
+
 @media (max-width: 768px) {
 
     .main-content {
