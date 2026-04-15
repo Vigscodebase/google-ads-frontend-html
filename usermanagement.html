@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>User Management — Campaign Intelligence</title>
         <link rel="stylesheet" href="assets/css/shared14.css">
-        <link rel="stylesheet" href="assets/css/usermanagement11.css">
+        <link rel="stylesheet" href="assets/css/usermanagement15.css">
     </head>
     <body class="auth-pending">
 
@@ -65,10 +65,10 @@
                         href="usermanagement.html">
                         <span class="nav-icon">⊞</span> User Management
                     </a>
-                    <a id="account-access" class="nav-item"
+                    <!-- <a id="account-access" class="nav-item"
                         href="accountaccess.html">
                         <span class="nav-icon">⊞</span>Account Access
-                    </a>
+                    </a> -->
                 </div>
 
                 <div class="sidebar-bottom">
@@ -139,7 +139,9 @@
 
                 <div class="form-group">
                     <label>Email</label>
-                    <input disabled type="text" id="editEmail">
+                    <input type="text" id="editEmail">
+                    <span class="adduser-info">Google Ad account email only
+                        allowed</span>
                 </div>
 
                 <div class="form-group">
@@ -154,6 +156,11 @@
                         <!-- <option value="Super Admin">Super Admin</option>
                         <option value="user">User</option> -->
                     </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Access Users</label>
+                    <div id="oauthCheckboxList" class="checkbox-scroll"></div>
                 </div>
 
                 <div class="form-actions">
@@ -228,6 +235,6 @@
 </script>
         <script
             src="https://cdn.jsdelivr.net/npm/jwt-decode@4.0.0/build/cjs/index.min.js"></script>
-        <script src="assets/js/usermanagement73.js"></script>
+        <script src="assets/js/usermanagement80.js"></script>
     </body>
 </html>

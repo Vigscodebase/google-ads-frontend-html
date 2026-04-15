@@ -601,6 +601,32 @@ button:active {
     font-size: 0.8rem;
 }
 
+.checkbox-scroll {
+    max-height: 150px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+}
+
+.checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+    font-size: 14px;
+}
+
+.account-access {
+    width: 4%;
+    padding: 0;
+    margin-top: 2px !important;
+}
+
+.accountacces-label {
+    margin: 0;
+}
+
 @media (max-width: 768px) {
 
     .main-content {

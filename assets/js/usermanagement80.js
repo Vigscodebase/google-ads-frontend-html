@@ -37,6 +37,7 @@ async function loadUserList() {
             </div>
         `).join('');
 
+
     } catch (err) {
         console.error(err);
     }
@@ -66,8 +67,34 @@ async function loadRolesForEdit() {
     }
 }
 
+// async function openEdit(id) {
+//     try {
+//         const res = await fetch(`${API}/auth/single-user/${id}`, {
+//             method: 'GET',
+//             headers: authH()
+//         });
+
+//         const data = await res.json();
+//         const user = data.data;
+
+//         document.getElementById('editUserId').value = id;
+//         document.getElementById('editName').value = user.fullname;
+//         document.getElementById('editEmail').value = user.email;
+
+//         await loadRolesForEdit();
+
+//         document.getElementById('editRole').value = user.role;
+//         document.getElementById('editModal').style.display = 'block';
+
+//     } catch (err) {
+//         console.error('Error:', err);
+//     }
+
+// }
+
 async function openEdit(id) {
     try {
+        // ✅ Fetch user details
         const res = await fetch(`${API}/auth/single-user/${id}`, {
             method: 'GET',
             headers: authH()
@@ -81,14 +108,92 @@ async function openEdit(id) {
         document.getElementById('editEmail').value = user.email;
 
         await loadRolesForEdit();
-
         document.getElementById('editRole').value = user.role;
+
+        // ✅ Fetch OAuth checkbox data
+        const checkbox_res = await fetch(`${API}/auth/oauth/list/${id}`, {
+            method: 'GET',
+            headers: authH()
+        });
+
+        const checkbox_data = await checkbox_res.json();
+
+        const container = document.getElementById('oauthCheckboxList');
+        container.innerHTML = '';
+
+        // ✅ Loop users
+        for (const userId of checkbox_data.allUserIds) {
+
+            // get name
+            const oauthuser_res = await fetch(`${API}/auth/get-oauth-name?userId=${userId}`, {
+                method: 'GET',
+                headers: authH()
+            });
+
+            const oauthuser_data = await oauthuser_res.json();
+
+            const div = document.createElement('div');
+            div.className = 'checkbox-item';
+
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.value = userId;
+            checkbox.className = "account-access"
+
+            // ✅ FIXED
+            if (checkbox_data.selectedUserIds.includes(userId)) {
+                checkbox.checked = true;
+            }
+
+            // ✅ TOGGLE (REAL-TIME DB UPDATE)
+            checkbox.addEventListener('change', async (e) => {
+
+                if (e.target.checked) {
+
+                    await fetch(`${API}/auth/oauth/add`, {
+                        method: 'POST',
+                        headers: {
+                            ...authH(),
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            userId,
+                            adminId: id   // ✅ FIXED
+                        })
+                    });
+
+                } else {
+
+                    await fetch(`${API}/auth/oauth/remove`, {
+                        method: 'POST',
+                        headers: {
+                            ...authH(),
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            userId,
+                            adminId: id   // ✅ FIXED
+                        })
+                    });
+                }
+            });
+
+            const label = document.createElement('label');
+            label.innerText = oauthuser_data.data.googleName;
+            label.className = "accountacces-label"
+
+            div.appendChild(checkbox);
+            div.appendChild(label);
+
+            container.appendChild(div);
+        }
+
+        // ✅ Open modal AFTER everything is ready
         document.getElementById('editModal').style.display = 'block';
 
     } catch (err) {
         console.error('Error:', err);
     }
-
 }
 
 document.getElementById('closeModal').onclick = () => {
@@ -106,9 +211,12 @@ async function updateUser() {
     const role = document.getElementById('editRole').value;
     const password = document.getElementById('editPassword').value;
 
-    const bodyData = { name, email, role };
+    // ✅ collect selected checkboxes
+    const checkedBoxes = document.querySelectorAll('#oauthCheckboxList input:checked');
+    const accessUserIds = Array.from(checkedBoxes).map(cb => cb.value);
 
-    // ✅ Only include password if provided
+    const bodyData = { name, email, role, accessUserIds };
+
     if (password && password.trim() !== '') {
         bodyData.password = password;
     }
@@ -124,8 +232,6 @@ async function updateUser() {
         });
 
         document.getElementById('editModal').style.display = 'none';
-
-        // reset password field after update
         document.getElementById('editPassword').value = '';
 
         loadUserList();
@@ -204,6 +310,37 @@ function closeAddUser() {
 }
 
 document.getElementById('closeAddModal').onclick = closeAddUser;
+
+async function loadOauthCheckboxes() {
+    try {
+        const res = await fetch(`${API}/oauth/list`, {
+            headers: authH()
+        });
+
+        const data = await res.json();
+
+        const allIds = data.allUserIds || [];
+        const selectedIds = data.selectedUserIds || [];
+
+        const container = document.getElementById('oauthCheckboxList');
+
+        if (!allIds.length) {
+            container.innerHTML = `<div>No OAuth users found</div>`;
+            return;
+        }
+
+        container.innerHTML = allIds.map(id => `
+            <label class="checkbox-item">
+                <input type="checkbox account-access" value="${id}" 
+                    ${selectedIds.includes(id) ? 'checked' : ''}>
+                ${id}
+            </label>
+        `).join('');
+
+    } catch (err) {
+        console.error('OAuth load error:', err);
+    }
+}
 
 /* Load roles for ADD modal */
 async function loadRolesForAdd() {
