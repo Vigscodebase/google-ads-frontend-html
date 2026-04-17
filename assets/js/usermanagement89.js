@@ -7,16 +7,29 @@ async function loadUserList() {
     showLoading(true);
 
     try {
-        const response = await fetch(`${API}/auth/admin-list`, { headers: authH() });
+        const response = await fetch(`${API}/auth/admin-list`, {
+            headers: authH()
+        });
+
+        if (!response.ok) {
+            throw new Error("API failed");
+        }
+
         const data = await response.json();
 
-        const users = data.final_user || [];
+        console.log("API RESPONSE:", data); // ✅ debug
+
+        // ✅ FIX: correct key
+        const users = data.admins || data.final_user || [];
+
         const el = document.getElementById('usr-management-list');
         const empty = document.getElementById('empty');
+        const table = document.getElementById('table-inner');
 
         if (!users.length) {
             el.innerHTML = '';
             empty.style.display = 'block';
+            table.style.display = 'block'; // ✅ show table area
             showLoading(false);
             return;
         }
@@ -26,20 +39,21 @@ async function loadUserList() {
         el.innerHTML = users.map((u, i) => `
             <div class="campaign-row" data-id="${u.id}">
                 <div class="cell-num">${i + 1}</div>
-                <div class="cell-name"><div class="name-main">${u.name}</div></div>
-                <div class="cell-name"><div class="name-main">${u.email}</div></div>
-                <div class="cell-name"><div class="name-main">${u.role}</div></div>
+                <div class="cell-name"><div class="name-main">${u.name || u.fullname || '-'}</div></div>
+                <div class="cell-name"><div class="name-main">${u.email || '-'}</div></div>
+                <div class="cell-name"><div class="name-main">${u.role || '-'}</div></div>
 
                 <div>
-                    <button class="action-btn edit-btn" onclick="openEdit('${u.id}')">Edit</button>
-                    <button class="action-btn delete-btn" onclick="openDelete('${u.id}')">Delete</button>
+                    <button class="action-btn edit-btn" onclick="openEdit('${u._id}')">Edit</button>
+                    <button class="action-btn delete-btn" onclick="openDelete('${u._id}')">Delete</button>
                 </div>
             </div>
         `).join('');
 
+        table.style.display = 'block'; // ✅ IMPORTANT
 
     } catch (err) {
-        console.error(err);
+        console.error("LOAD USER ERROR:", err);
     }
 
     showLoading(false);
@@ -324,7 +338,7 @@ async function loadOauthCheckboxes() {
 
         container.innerHTML = allIds.map(id => `
             <label class="checkbox-item">
-                <input type="checkbox account-access" value="${id}" 
+                <input type="checkbox" class="account-access" value="${id}" 
                     ${selectedIds.includes(id) ? 'checked' : ''}>
                 ${id}
             </label>
