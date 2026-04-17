@@ -34,11 +34,16 @@ if (!token) {
     }
 
     if (decoded && decoded.role !== 'super_admin') {
-        if (currentPage !== "dashboard.html") {
+        if (currentPage === "accountaccess.html") {
+            window.location.href = "dashboard.html";
+        }
+
+        if (currentPage === "usermanagement.html") {
             window.location.href = "dashboard.html";
         }
         document.body.classList.remove('auth-pending');
         document.getElementById("usr-management").style.display = "none";
+        // document.getElementById("account-access").style.display = "none";
         fetch(`${API}/logincheck/me`, { headers: { 'x-session-token': token } })
             .then(r => {
                 if (!r.ok) { clearAndRedirect(); return; }
@@ -51,11 +56,20 @@ if (!token) {
                 setAdminUI();
                 loadAllAccounts();
             });
-    } else if (decoded) {
+    } else {
         if (currentPage === "usermanagement.html") {
             // window.location.href = 'dashboard.html';
             document.getElementById("usr-management").style.display = "block";
+            // document.getElementById("account-access").style.display = "block";
         }
+
+        if (currentPage === "accountaccess.html") {
+            // window.location.href = 'dashboard.html';
+            document.getElementById("usr-management").style.display = "block";
+            // document.getElementById("account-access").style.display = "block";
+        }
+        document.getElementById("usr-management").style.display = "block";
+        // document.getElementById("account-access").style.display = "block";
         fetch(`${API}/logincheck/me`, { headers: { 'x-session-token': token } })
             .then(r => {
                 if (!r.ok) { clearAndRedirect(); return; }

@@ -8,6 +8,7 @@ let allAccounts = [];
 let allAdmins = [];       // all admin users for grant-access dropdown
 let pendingDeleteId = null;
 let accessModalAccId = null;     // which account the access modal is open for
+let isSuperAdmin = false;
 
 const currentPage = window.location.pathname.split("/").pop();
 // ── Auth guard ──────────────────────────────────────────────────────────────
@@ -24,11 +25,19 @@ if (!token) {
     }
 
     if (decoded && decoded.role !== 'super_admin') {
-        if (currentPage !== "accountmanagement.html") {
-            window.location.href = "accountmanagement.html";
+        isSuperAdmin = false;
+        handleRoleUI();
+        if (currentPage === "accountaccess.html") {
+            window.location.href = "dashboard.html";
         }
+
+        if (currentPage === "usermanagement.html") {
+            window.location.href = "dashboard.html";
+        }
+
         document.body.classList.remove('auth-pending');
         document.getElementById("usr-management").style.display = "none";
+        // document.getElementById("account-access").style.display = "none";
         fetch(`${API}/logincheck/me`, { headers: { 'x-session-token': token } })
             .then(r => {
                 if (!r.ok) { clearAndRedirect(); return; }
@@ -43,10 +52,23 @@ if (!token) {
             });
     } else {
         // window.location.href = 'accountmanagement.html';
+        isSuperAdmin = true;
+        handleRoleUI();
         if (currentPage === "usermanagement.html") {
             // window.location.href = 'dashboard.html';
             document.getElementById("usr-management").style.display = "block";
+            // document.getElementById("account-access").style.display = "block";
         }
+
+        if (currentPage === "accountaccess.html") {
+            // window.location.href = 'dashboard.html';
+            document.getElementById("usr-management").style.display = "block";
+            // document.getElementById("account-access").style.display = "block";
+        }
+
+        document.getElementById("usr-management").style.display = "block";
+        // document.getElementById("account-access").style.display = "block";
+
         fetch(`${API}/logincheck/me`, { headers: { 'x-session-token': token } })
             .then(r => {
                 if (!r.ok) { clearAndRedirect(); return; }
@@ -79,7 +101,8 @@ function setAdminUI() {
 
 function loadAllAccounts() {
     showLoading(true);
-    fetch(`${API}/auth/accounts?adminEmail=${adminEmail}`, { headers: authH() })
+    //fetch(`${API}/auth/accounts?adminEmail=${adminEmail}`, { headers: authH() })
+    fetch(`${API}/auth/accounts`, { headers: authH() })
         .then(r => { if (r.status === 401) { clearAndRedirect(); return null; } return r.json(); })
         .then(data => {
             if (!data) return;
@@ -197,6 +220,13 @@ function updateStats() {
     if (el('count-chip')) el('count-chip').textContent = total;
 }
 
+function handleRoleUI() {
+    const actionsHeader = document.getElementById('actions-header');
+    if (!isSuperAdmin && actionsHeader) {
+        actionsHeader.style.display = 'none';
+    }
+}
+
 function renderAccounts(list) {
     const tbody = document.getElementById('account-list');
     const empty = document.getElementById('empty');
@@ -250,16 +280,19 @@ function renderAccounts(list) {
 
             <div class="cids-wrap col-cids">${cidsHtml}</div>
 
-            <!-- <div class="col-access">
+           <!-- <div class="col-access">
                 <div class="access-summary">${accessSummary}</div>
             </div> -->
 
             <div class="cell-date col-date">${added}</div>
 
-            <div class="cell-actions">
-                <button class="action-btn-refresh" onclick="refreshAccount('${id}')" title="Refresh token">↻ Refresh</button>
-                <button class="action-btn-delete"  onclick="confirmDelete('${id}','${safeEmail}')" title="Remove account">✕ Remove</button>
-            </div>
+           <div class="cell-actions">
+    <!-- <button class="action-btn-access" onclick="openAccessModal('${id}')" title="Manage access">👥 Access</button> -->
+     ${isSuperAdmin ? `
+    <button class="action-btn-refresh" onclick="refreshAccount('${id}')" title="Refresh token">↻ Refresh</button>
+    <button class="action-btn-delete"  onclick="confirmDelete('${id}','${safeEmail}')" title="Remove account">✕ Remove</button>
+    ` : ``}
+</div>
         </div>`;
     }).join('');
 }
@@ -310,13 +343,22 @@ document.getElementById('modal-delete-btn')?.addEventListener('click', () => {
 
 function openAccessModal(accountId) {
     accessModalAccId = accountId;
+
     const acc = allAccounts.find(a => a._id === accountId);
     const name = acc ? (getDisplayInfo(acc).displayName) : accountId;
 
     document.getElementById('access-modal-title').textContent = `User Access — ${name}`;
     document.getElementById('access-modal').classList.add('open');
 
-    renderGrantForm();
+    // ✅ Ensure admins loaded before rendering
+    if (!allAdmins.length) {
+        loadAdminList().then(() => {
+            renderGrantForm();
+        });
+    } else {
+        renderGrantForm();
+    }
+
     loadAccessRoles(accountId);
 }
 

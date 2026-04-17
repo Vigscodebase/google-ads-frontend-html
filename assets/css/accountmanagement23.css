@@ -55,7 +55,7 @@
 }
 
 /* Access manage button */
-.action-btn-access {
+/* .action-btn-access {
     display: inline-flex;
     align-items: center;
     gap: 4px;
@@ -77,6 +77,20 @@
     color: #fff;
     border-color: #7c3aed;
     box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3);
+} */
+
+.action-btn-access {
+    background: #6366f1;
+    color: #fff;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-right: 5px;
+}
+
+.action-btn-access:hover {
+    background: #4f46e5;
 }
 
 /* ══════════════════════════════════════════════════

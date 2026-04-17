@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Account Acess — Campaign Intelligence</title>
         <link rel="stylesheet" href="assets/css/shared14.css">
-        <link rel="stylesheet" href="assets/css/accountaccess4.css">
+        <link rel="stylesheet" href="assets/css/accountaccess11.css">
     </head>
     <body class="auth-pending">
 
@@ -67,10 +67,10 @@
                         href="usermanagement.html">
                         <span class="nav-icon">⊞</span>User Management
                     </a>
-                    <!-- <a id="account-access" class="nav-item"
+                    <a id="account-access" class="nav-item"
                         href="accountaccess.html">
                         <span class="nav-icon">⊞</span>Account Access
-                    </a> -->
+                    </a>
 
                 </div>
 
@@ -96,8 +96,8 @@
 
                 <div class="toolbar">
                     <div class="toolbar-left">
-                        <span class="toolbar-title">All Accounts</span>
-                        <span class="count-chip" id="count-chip">…</span>
+                        <!-- <span class="toolbar-title">All Accounts</span> -->
+                        <!-- <span class="count-chip" id="count-chip">…</span> -->
                     </div>
                 </div>
 
@@ -116,12 +116,29 @@
 
             </main>
 
+            <!-- ADMIN EDIT MODAL -->
+            <div id="adminModal" class="modal">
+                <div class="modal-box">
+
+                    <div class="modal-header">
+                        <div id="modalTitle">Edit Admin Access</div>
+
+                        <button id="closeModal" class="modal-close">
+                            ✕
+                        </button>
+                    </div>
+
+                    <div id="modalBody" class="modal-body"></div>
+
+                </div>
+            </div>
+
             <script>
     document.getElementById('footer-time').textContent =
         'Updated ' + new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
 </script>
             <script
                 src="https://cdn.jsdelivr.net/npm/jwt-decode@4.0.0/build/cjs/index.min.js"></script>
-            <script src="assets/js/accountaccess18.js"></script>
+            <script src="assets/js/accountaccess33.js"></script>
         </body>
     </html>

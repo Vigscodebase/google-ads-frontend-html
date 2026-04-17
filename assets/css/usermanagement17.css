@@ -394,7 +394,7 @@ tr:hover {
 
 .modal-content {
     background: #fff;
-    margin: 8% auto;
+    margin: 3% auto;
     padding: 30px;
     border-radius: 12px;
     width: 90%;
@@ -601,8 +601,16 @@ button:active {
     font-size: 0.8rem;
 }
 
-.checkbox-scroll {
+/* .checkbox-scroll {
     max-height: 150px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+} */
+
+.checkbox-scroll {
+    max-height: 250px;
     overflow-y: auto;
     border: 1px solid #ddd;
     border-radius: 8px;
@@ -614,7 +622,8 @@ button:active {
     align-items: center;
     gap: 8px;
     margin-bottom: 6px;
-    font-size: 14px;
+    font-size: 13px;
+    padding: 4px 0;
 }
 
 .account-access {

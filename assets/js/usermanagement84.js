@@ -92,14 +92,14 @@ async function loadRolesForEdit() {
 
 // }
 
+let GLOBAL_ACCOUNTS = null; // cache
+
 async function openEdit(id) {
     try {
-        // ✅ Fetch user details
+        // ✅ Load user basic info
         const res = await fetch(`${API}/auth/single-user/${id}`, {
-            method: 'GET',
             headers: authH()
         });
-
         const data = await res.json();
         const user = data.data;
 
@@ -110,85 +110,78 @@ async function openEdit(id) {
         await loadRolesForEdit();
         document.getElementById('editRole').value = user.role;
 
-        // ✅ Fetch OAuth checkbox data
-        const checkbox_res = await fetch(`${API}/auth/oauth/list/${id}`, {
-            method: 'GET',
-            headers: authH()
-        });
-
-        const checkbox_data = await checkbox_res.json();
-
-        const container = document.getElementById('oauthCheckboxList');
-        container.innerHTML = '';
-
-        // ✅ Loop users
-        for (const userId of checkbox_data.allUserIds) {
-
-            // get name
-            const oauthuser_res = await fetch(`${API}/auth/get-oauth-name?userId=${userId}`, {
-                method: 'GET',
+        /* ===============================
+           ✅ LOAD ALL ACCOUNTS (ONLY ONCE)
+        =============================== */
+        if (!GLOBAL_ACCOUNTS) {
+            const matrixRes = await fetch(`${API}/auth/access-matrix`, {
                 headers: authH()
             });
 
-            const oauthuser_data = await oauthuser_res.json();
+            const matrixData = await matrixRes.json();
+            GLOBAL_ACCOUNTS = matrixData.oauthUsers; // ✅ ALL accounts
+        }
+
+        /* ===============================
+           ✅ GET CURRENT ADMIN ACCESS
+        =============================== */
+        const adminRes = await fetch(`${API}/auth/single-user/${id}`, {
+            headers: authH()
+        });
+        const adminData = await adminRes.json();
+        const selectedIds = adminData.data.accessUserIds || [];
+
+        /* ===============================
+           ✅ RENDER CHECKBOXES
+        =============================== */
+        const container = document.getElementById('oauthCheckboxList');
+        container.innerHTML = '';
+
+        GLOBAL_ACCOUNTS.forEach(account => {
 
             const div = document.createElement('div');
             div.className = 'checkbox-item';
 
             const checkbox = document.createElement('input');
             checkbox.type = 'checkbox';
-            checkbox.value = userId;
-            checkbox.className = "account-access"
+            checkbox.value = account.userId;
+            checkbox.className = "account-access";
 
-            // ✅ FIXED
-            if (checkbox_data.selectedUserIds.includes(userId)) {
+            // ✅ checked state
+            if (selectedIds.includes(account.userId)) {
                 checkbox.checked = true;
             }
 
-            // ✅ TOGGLE (REAL-TIME DB UPDATE)
+            // ✅ REAL TIME TOGGLE
             checkbox.addEventListener('change', async (e) => {
-
-                if (e.target.checked) {
-
-                    await fetch(`${API}/auth/oauth/add`, {
+                try {
+                    await fetch(`${API}/auth/oauth/toggle-access`, {
                         method: 'POST',
                         headers: {
                             ...authH(),
                             'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({
-                            userId,
-                            adminId: id   // ✅ FIXED
+                            adminId: id,
+                            userId: account.userId,
+                            enable: e.target.checked
                         })
                     });
-
-                } else {
-
-                    await fetch(`${API}/auth/oauth/remove`, {
-                        method: 'POST',
-                        headers: {
-                            ...authH(),
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            userId,
-                            adminId: id   // ✅ FIXED
-                        })
-                    });
+                } catch (err) {
+                    console.error(err);
                 }
             });
 
             const label = document.createElement('label');
-            label.innerText = oauthuser_data.data.googleName;
-            label.className = "accountacces-label"
+            label.innerText = `${account.googleName} (${account.googleEmail})`;
+            label.className = "accountacces-label";
 
             div.appendChild(checkbox);
             div.appendChild(label);
 
             container.appendChild(div);
-        }
+        });
 
-        // ✅ Open modal AFTER everything is ready
         document.getElementById('editModal').style.display = 'block';
 
     } catch (err) {
@@ -414,11 +407,17 @@ if (!token) {
     }
 
     if (decoded && decoded.role !== 'super_admin') {
+        if (currentPage === "accountaccess.html") {
+            window.location.href = "dashboard.html";
+        }
+
         if (currentPage === "usermanagement.html") {
             window.location.href = "dashboard.html";
         }
+
         document.body.classList.remove('auth-pending');
         document.getElementById("usr-management").style.display = "none";
+        //document.getElementById("account-access").style.display = "none";
         fetch(`${API}/logincheck/me`, { headers: { 'x-session-token': token } })
             .then(r => {
                 if (!r.ok) { clearAndRedirect(); return; }
@@ -433,10 +432,17 @@ if (!token) {
             });
     } else {
         // window.location.href = 'accountmanagement.html';
-        // if (currentPage === "usermanagement.html") {
-        //     // window.location.href = 'dashboard.html';
-        //     document.getElementById("usr-management").style.display = "block";
-        // }
+        if (currentPage === "usermanagement.html") {
+            // window.location.href = 'dashboard.html';
+            document.getElementById("usr-management").style.display = "block";
+            //document.getElementById("account-access").style.display = "block";
+        }
+
+        if (currentPage === "accountaccess.html") {
+            // window.location.href = 'dashboard.html';
+            document.getElementById("usr-management").style.display = "block";
+            //document.getElementById("account-access").style.display = "block";
+        }
         fetch(`${API}/logincheck/me`, { headers: { 'x-session-token': token } })
             .then(r => {
                 if (!r.ok) { clearAndRedirect(); return; }
