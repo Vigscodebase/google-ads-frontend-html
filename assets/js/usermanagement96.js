@@ -17,7 +17,7 @@ async function loadUserList() {
 
         const data = await response.json();
 
-        console.log("API RESPONSE:", data); // ✅ debug
+        // console.log("API RESPONSE:", data); // ✅ debug
 
         // ✅ FIX: correct key
         const users = data.admins || data.final_user || [];
@@ -116,6 +116,7 @@ async function openEdit(id) {
         });
         const data = await res.json();
         const user = data.data;
+        let GLOBAL_CUSTOMERS_MAP = {}; // cache customers per account
 
         document.getElementById('editUserId').value = id;
         document.getElementById('editName').value = user.fullname;
@@ -151,50 +152,114 @@ async function openEdit(id) {
         const container = document.getElementById('oauthCheckboxList');
         container.innerHTML = '';
 
-        GLOBAL_ACCOUNTS.forEach(account => {
+        for (const account of GLOBAL_ACCOUNTS) {
 
-            const div = document.createElement('div');
-            div.className = 'checkbox-item';
+            const accountWrapper = document.createElement('div');
+            accountWrapper.className = "oauth-account-block";
 
-            const checkbox = document.createElement('input');
-            checkbox.type = 'checkbox';
-            checkbox.value = account.userId;
-            checkbox.className = "account-access";
+            /* =========================
+               ✅ PARENT
+            ========================= */
+            const parentRow = document.createElement('div');
+            parentRow.className = "parent-account";
 
-            // ✅ checked state
-            if (selectedIds.includes(account.userId)) {
-                checkbox.checked = true;
+            const parentCheckbox = document.createElement('input');
+            parentCheckbox.type = "checkbox";
+            parentCheckbox.className = "parent-checkbox";
+            parentCheckbox.value = account.userId;
+
+            const isParentChecked = selectedIds.includes(account.userId);
+            parentCheckbox.checked = isParentChecked;
+
+            const parentLabel = document.createElement('label');
+            parentLabel.innerHTML = `
+        <b>${account.googleName || "Unknown"}</b>
+        <span style="color:#777">(${account.googleEmail || "-"})</span>
+    `;
+            parentLabel.className = "parent-label";
+
+            parentRow.appendChild(parentCheckbox);
+            parentRow.appendChild(parentLabel);
+
+            /* =========================
+               ✅ CHILDREN (CUSTOMERS)
+            ========================= */
+            const customerContainer = document.createElement('div');
+            customerContainer.className = "customer-list";
+
+            // fetch customers once
+            if (!GLOBAL_CUSTOMERS_MAP[account.userId]) {
+                const custRes = await fetch(`${API}/auth/customers-lite?userId=${account.userId}`, {
+                    headers: authH()
+                });
+                const custData = await custRes.json();
+                GLOBAL_CUSTOMERS_MAP[account.userId] = custData.customers || [];
             }
 
-            // ✅ REAL TIME TOGGLE
-            checkbox.addEventListener('change', async (e) => {
-                try {
-                    await fetch(`${API}/auth/oauth/toggle-access`, {
-                        method: 'POST',
-                        headers: {
-                            ...authH(),
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            adminId: id,
-                            userId: account.userId,
-                            enable: e.target.checked
-                        })
-                    });
-                } catch (err) {
-                    console.error(err);
-                }
+            const customers = GLOBAL_CUSTOMERS_MAP[account.userId];
+
+            customers.forEach(c => {
+                const row = document.createElement('div');
+                row.className = "child-checkbox-wrapper";
+
+                const cb = document.createElement('input');
+                cb.type = "checkbox";
+                cb.className = "child-checkbox";
+                cb.value = c.id;
+
+                // ✅ checked if saved
+                cb.checked = selectedIds.includes(c.id);
+
+                // ✅ disabled if parent unchecked
+                cb.disabled = !isParentChecked;
+
+                const label = document.createElement('label');
+
+                // ✅ SHOW NAME + ID
+                label.innerText = `${c.name || 'Customer'} (${c.id})`;
+                label.className = "child-label";
+
+                row.appendChild(cb);
+                row.appendChild(label);
+
+                customerContainer.appendChild(row);
             });
 
-            const label = document.createElement('label');
-            label.innerText = `${account.googleName} (${account.googleEmail})`;
-            label.className = "accountacces-label";
+            /* =========================
+               ✅ TOGGLE LOGIC
+            ========================= */
+            parentCheckbox.addEventListener("change", (e) => {
+                const enabled = e.target.checked;
 
-            div.appendChild(checkbox);
-            div.appendChild(label);
+                customerContainer
+                    .querySelectorAll("input[type='checkbox']")
+                    .forEach(cb => {
+                        cb.disabled = !enabled;
 
-            container.appendChild(div);
-        });
+                        // OPTIONAL: uncheck when disabling
+                        if (!enabled) cb.checked = false;
+                    });
+
+                // backend sync
+                fetch(`${API}/auth/oauth/toggle-access`, {
+                    method: "POST",
+                    headers: {
+                        ...authH(),
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        adminId: id,
+                        userId: account.userId,
+                        enable: enabled
+                    })
+                });
+            });
+
+            accountWrapper.appendChild(parentRow);
+            accountWrapper.appendChild(customerContainer);
+
+            container.appendChild(accountWrapper);
+        }
 
         document.getElementById('editModal').style.display = 'block';
 

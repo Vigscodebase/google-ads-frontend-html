@@ -636,6 +636,105 @@ button:active {
     margin: 0;
 }
 
+/* =========================
+   FIX PARENT CHECKBOX ALIGNMENT
+========================= */
+.parent-account {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.parent-account input[type="checkbox"] {
+    width: auto;
+    /* override global 100% */
+    margin: 0;
+}
+
+.parent-account label {
+    display: inline;
+    /* override block */
+    margin: 0;
+}
+
+.parent-checkbox {
+    width: 16px;
+    height: 16px;
+    accent-color: #667eea;
+    /* primary color */
+}
+
+.parent-label {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+/* =========================
+   FIX CHILD CHECKBOX ALIGNMENT
+========================= */
+
+.customer-list {
+    margin-left: 28px;
+    /* more indent */
+    position: relative;
+}
+
+/* vertical line */
+.customer-list::before {
+    content: "";
+    position: absolute;
+    left: -12px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #e2e8f0;
+}
+
+.customer-list>div:hover {
+    background: #f7fafc;
+    border-radius: 4px;
+}
+
+.oauth-account-block {
+    padding: 8px 6px;
+    border-radius: 8px;
+}
+
+.oauth-account-block:hover {
+    background: #f9fafb;
+}
+
+.customer-list>div {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 6px;
+}
+
+.customer-list input[type="checkbox"] {
+    width: auto;
+    /* VERY IMPORTANT */
+    margin: 0;
+}
+
+.customer-list label {
+    display: inline;
+    /* override block */
+    margin: 0;
+}
+
+.child-checkbox {
+    width: 13px;
+    height: 13px;
+    accent-color: #a0aec0;
+    /* muted color */
+}
+
+.child-label {
+    font-size: 12.5px;
+    color: #555;
+}
+
 @media (max-width: 768px) {
 
     .main-content {

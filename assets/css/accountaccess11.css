@@ -191,3 +191,37 @@ input:checked+.slider:before {
   padding: 10px;
   border-bottom: 1px solid #f1f1f1;
 }
+
+.oauth-account-block {
+  margin-bottom: 15px;
+  padding: 10px;
+  border: 1px solid #eee;
+  border-radius: 6px;
+}
+
+.parent-account {
+  display: flex;
+  gap: 10px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.customer-list {
+  padding-left: 25px;
+}
+
+.customer-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin: 4px 0;
+}
+
+.cust-id {
+  font-weight: 600;
+  margin-right: 8px;
+}
+
+.cust-name {
+  color: #666;
+}

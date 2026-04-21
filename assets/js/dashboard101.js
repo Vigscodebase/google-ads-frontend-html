@@ -148,7 +148,6 @@ function updatePeriodChip() {
             'LAST_7_DAYS': 'Last 7 Days',
             'LAST_14_DAYS': 'Last 14 Days',
             'LAST_30_DAYS': 'Last 30 Days',
-            'LAST_90_DAYS': 'Last 90 Days',
             'THIS_MONTH': 'This Month',
             'LAST_MONTH': 'Last Month',
         };
@@ -170,6 +169,9 @@ function buildCampaignUrl(userId, customerId) {
 }
 
 function reloadCampaigns() {
+    allCampaigns = [];
+    filteredCampaigns = [];
+    document.getElementById('campaign-list').innerHTML = '';
     showLoading(true);
     loadCampaigns(activeUserId, activeCustomerId);
 }
@@ -230,21 +232,33 @@ document.getElementById('customer-select').addEventListener('change', function (
     selectCustomer(this.value);
 });
 
-function buildCustomerDropdown(cids) {
+function buildCustomerDropdown(customers) {
     const sel = document.getElementById('customer-select');
     sel.innerHTML = '';
 
-    cids.forEach(cid => {
+    customers.forEach(c => {
         const opt = document.createElement('option');
-        opt.value = cid;
-        opt.textContent = cid;
+        opt.value = c.id;
+
+        if (c.status === "error") {
+            opt.textContent = `❌ ${c.id} - ${c.error}`;
+            opt.style.color = "red";
+            opt.disabled = true; // 🚀 prevents bad selection
+        } else if (c.status === "empty") {
+            opt.textContent = `⚠️ ${c.id} - No campaigns`;
+        } else {
+            opt.textContent = `✅ ${c.id} - ${c.name}`;
+        }
+
         sel.appendChild(opt);
     });
 
-    // auto-select first customer
-    if (cids.length) {
-        sel.value = cids[0];
-        selectCustomer(cids[0]);
+    // ✅ select first valid customer
+    const firstValid = customers.find(c => c.status === "success");
+
+    if (firstValid) {
+        sel.value = firstValid.id;
+        selectCustomer(firstValid.id);
     }
 }
 
@@ -252,21 +266,44 @@ function selectAccount(acc) {
     activeUserId = acc.userId;
     document.getElementById('account-select').value = acc.userId;
     showLoading(true);
+    // const cachedCids = acc.customerIds || [];
     const cachedCids = acc.customerIds || [];
-    if (cachedCids.length) {
-        buildCustomerDropdown(cachedCids);
-    } else {
-        fetch(`${API}/auth/customers?userId=${activeUserId}`, { headers: authH() })
-            .then(r => r.json())
-            .then(data => {
-                const cids = data.customerIds || [];
-                if (!cids.length) throw new Error('No Customer IDs for this account.');
-                buildCustomerDropdown(cids);
-            })
-            .catch(err => {
-                showError(err.data.error.details)
-            });
-    }
+    // if (cachedCids.length) {
+    //     buildCustomerDropdown(cachedCids);
+    // } 
+    // if (cachedCids.length) {
+    //     // fallback if API not yet updated
+    //     const customers = cachedCids.map(id => ({ id, name: '' }));
+    //     console.log(customers)
+    //     buildCustomerDropdown(customers);
+    // } else {
+    fetch(`${API}/auth/customers?userId=${activeUserId}`, { headers: authH() })
+        .then(async r => {
+            const data = await r.json();
+
+            if (!r.ok) {
+                throw data;   // ✅ important
+            }
+
+            return data;
+        })
+        .then(data => {
+            const customers = data.customers || [];
+            if (!customers.length) throw new Error('No Customer IDs for this account.');
+            buildCustomerDropdown(customers);
+        })
+        .catch(err => {
+            console.log("Customer API ERROR:", err);
+
+            // ✅ show real Google error
+            const msg =
+                err?.error ||
+                err?.message ||
+                "Failed to load customers";
+
+            showError(msg);
+        });
+    //}
 }
 
 function updateCidLabel(cid) {
@@ -281,7 +318,21 @@ function updateCidLabel(cid) {
 function loadCampaigns(userId, customerId) {
     const url = buildCampaignUrl(userId, customerId);
     fetch(url, { headers: authH() })
-        .then(r => { if (r.status === 401) { clearAndRedirect(); return null; } return r.json(); })
+        //.then(r => { if (r.status === 401) { clearAndRedirect(); return null; } return r.json(); })
+        .then(async r => {
+            if (r.status === 401) {
+                clearAndRedirect();
+                return null;
+            }
+
+            const data = await r.json();
+
+            if (!r.ok) {
+                throw data; // 🔥 important
+            }
+
+            return data;
+        })
         .then(data => {
             if (!data) return;
             //if (data.error) throw new Error(data.error);
@@ -296,8 +347,20 @@ function loadCampaigns(userId, customerId) {
             updatePeriodChip();
             showLoading(false);
         })
+        // .catch(err => {
+        //     showError(err.message || 'Failed to load campaigns')
+        // });
         .catch(err => {
-            showError(err.message || 'Failed to load campaigns')
+            console.log("API ERROR:", err);
+
+            document.getElementById('campaign-list').innerHTML = ''; // ✅ clear old data
+
+            if (err?.errors?.length) {
+                const msg = err.errors.map(e => e.error.message).join('\n');
+                showError(msg);
+            } else {
+                showError(err.message || 'Failed to load campaigns');
+            }
         });
 }
 
@@ -428,7 +491,7 @@ function fmtCTR(v) {
 function renderCampaigns(list, userId, customerId, data) {
     const el = document.getElementById('campaign-list');
     const empty = document.getElementById('empty');
-    if (data.errors) {
+    if (data?.errors?.length) {
         const errorHtml = data.errors
             .map(item => item.error.message)
             .join('<br>');
@@ -487,10 +550,11 @@ function showLoading(state) {
     document.getElementById('error-box').style.display = 'none';
 }
 function showError(msg) {
-    document.getElementById('loading').style.display = 'none';
-    document.getElementById('table-inner').style.display = 'none';
+    showLoading(false); // 🔥 ADD THIS
+
     document.getElementById('error-box').style.display = 'flex';
-    document.getElementById('error-msg').textContent = typeof msg === 'object' ? JSON.stringify(msg) : "No Data Found";
+    document.getElementById('error-msg').textContent =
+        typeof msg === 'object' ? JSON.stringify(msg) : msg;
 }
 
 function clearAndRedirect() {
@@ -573,8 +637,6 @@ let selectedCampaignId = null;
 
 function openCampaignModal(campaignId, userId, customerId) {
     selectedCampaignId = campaignId;
-    console.log(campaignId)
-    console.log(userId)
     const modal = document.getElementById('campaign-modal');
     const body = document.getElementById('modal-body');
 
