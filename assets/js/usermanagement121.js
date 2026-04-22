@@ -109,6 +109,13 @@ async function loadRolesForEdit() {
 let GLOBAL_ACCOUNTS = null; // cache
 let GLOBAL_CUSTOMERS_MAP = {}; // ✅ move here (global)
 
+function syncChildrenState(parentChecked, container) {
+    container.querySelectorAll(".child-checkbox").forEach(cb => {
+        cb.disabled = !parentChecked;
+        if (!parentChecked) cb.checked = false;
+    });
+}
+
 async function openEdit(id) {
     try {
         // ✅ Load user basic info
@@ -285,16 +292,12 @@ async function openEdit(id) {
             parentCheckbox.addEventListener("change", async (e) => {
                 const enabled = e.target.checked;
 
+                // ✅ UI sync
+                syncChildrenState(enabled, customerContainer);
+
                 const children = customerContainer.querySelectorAll(".child-checkbox");
 
                 for (const cb of children) {
-
-                    // ❌ REMOVE auto-checking
-                    // cb.checked = enabled;
-
-                    // ✅ ONLY enable/disable
-                    cb.disabled = !enabled;
-
                     try {
                         await fetch(`${API}/auth/oauth/toggle-customer-access`, {
                             method: "POST",
@@ -306,7 +309,7 @@ async function openEdit(id) {
                                 adminId: id,
                                 userId: account.userId,
                                 customerId: cb.value,
-                                checked: cb.checked   // ✅ send actual state, NOT forced enabled
+                                checked: cb.checked
                             })
                         });
                     } catch (err) {
