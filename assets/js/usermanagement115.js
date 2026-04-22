@@ -37,7 +37,7 @@ async function loadUserList() {
         empty.style.display = 'none';
 
         el.innerHTML = users.map((u, i) => `
-            <div class="campaign-row" data-id="${u.id}">
+            <div class="campaign-row" data-id="${u._id}">
                 <div class="cell-num">${i + 1}</div>
                 <div class="cell-name"><div class="name-main">${u.name || u.fullname || '-'}</div></div>
                 <div class="cell-name"><div class="name-main">${u.email || '-'}</div></div>
@@ -107,6 +107,7 @@ async function loadRolesForEdit() {
 // }
 
 let GLOBAL_ACCOUNTS = null; // cache
+let GLOBAL_CUSTOMERS_MAP = {}; // ✅ move here (global)
 
 async function openEdit(id) {
     try {
@@ -116,7 +117,13 @@ async function openEdit(id) {
         });
         const data = await res.json();
         const user = data.data;
-        let GLOBAL_CUSTOMERS_MAP = {}; // cache customers per account
+        const selectedIds = user.accessUserIds || []; // ✅ reuse here
+        //let GLOBAL_CUSTOMERS_MAP = {}; // cache customers per account
+
+        const customerAccessMap = {};
+        (user.customerAccess || []).forEach(entry => {
+            customerAccessMap[entry.userId] = entry.customerIds;
+        });
 
         document.getElementById('editUserId').value = id;
         document.getElementById('editName').value = user.fullname;
@@ -140,11 +147,11 @@ async function openEdit(id) {
         /* ===============================
            ✅ GET CURRENT ADMIN ACCESS
         =============================== */
-        const adminRes = await fetch(`${API}/auth/single-user/${id}`, {
-            headers: authH()
-        });
-        const adminData = await adminRes.json();
-        const selectedIds = adminData.data.accessUserIds || [];
+        // const adminRes = await fetch(`${API}/auth/single-user/${id}`, {
+        //     headers: authH()
+        // });
+        // const adminData = await adminRes.json();
+        // const selectedIds = adminData.data.accessUserIds || [];
 
         /* ===============================
            ✅ RENDER CHECKBOXES
@@ -168,8 +175,9 @@ async function openEdit(id) {
             parentCheckbox.className = "parent-checkbox";
             parentCheckbox.value = account.userId;
 
-            const isParentChecked = selectedIds.includes(account.userId);
-            parentCheckbox.checked = isParentChecked;
+            //const isParentChecked = selectedIds.includes(account.userId);
+            const isParentChecked =
+                (customerAccessMap[account.userId] || []).length > 0;
 
             const parentLabel = document.createElement('label');
             parentLabel.innerHTML = `
@@ -210,7 +218,8 @@ async function openEdit(id) {
                     const checked = e.target.checked;
 
                     try {
-                        await fetch(`${API}/auth/oauth/toggle-access`, {
+
+                        await fetch(`${API}/auth/oauth/toggle-customer-access`, {
                             method: "POST",
                             headers: {
                                 ...authH(),
@@ -218,8 +227,9 @@ async function openEdit(id) {
                             },
                             body: JSON.stringify({
                                 adminId: id,
-                                userId: c.id,   // 👈 IMPORTANT (child customer id)
-                                enable: checked
+                                userId: account.userId,   // ✅ parent
+                                customerId: c.id,         // ✅ child
+                                checked: checked
                             })
                         });
 
@@ -235,14 +245,24 @@ async function openEdit(id) {
                     const checkedChildren = customerContainer.querySelectorAll(".child-checkbox:checked");
 
                     // if ANY child checked → parent checked
-                    parentCheckbox.checked = checkedChildren.length > 0;
+                    // parentCheckbox.checked = checkedChildren.length > 0;
+
+                    if (checkedChildren.length > 0) {
+                        parentCheckbox.checked = true;
+                    } else {
+                        parentCheckbox.checked = false;
+                    }
+
                 });
 
                 // ✅ checked if saved
-                cb.checked = selectedIds.includes(c.id);
+                //cb.checked = selectedIds.includes(c.id);
+
+                cb.checked = (customerAccessMap[account.userId] || []).includes(c.id);
 
                 // ✅ disabled if parent unchecked
-                cb.disabled = !isParentChecked;
+                //cb.disabled = !isParentChecked;
+                cb.disabled = !parentCheckbox.checked;
 
                 const label = document.createElement('label');
 
@@ -259,31 +279,33 @@ async function openEdit(id) {
             /* =========================
                ✅ TOGGLE LOGIC
             ========================= */
-            parentCheckbox.addEventListener("change", (e) => {
+            parentCheckbox.addEventListener("change", async (e) => {
                 const enabled = e.target.checked;
 
-                customerContainer
-                    .querySelectorAll("input[type='checkbox']")
-                    .forEach(cb => {
-                        cb.disabled = !enabled;
+                const children = customerContainer.querySelectorAll(".child-checkbox");
 
-                        // OPTIONAL: uncheck when disabling
-                        if (!enabled) cb.checked = false;
-                    });
+                for (const cb of children) {
+                    cb.checked = enabled;
+                    cb.disabled = !enabled;
 
-                // backend sync
-                fetch(`${API}/auth/oauth/toggle-access`, {
-                    method: "POST",
-                    headers: {
-                        ...authH(),
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        adminId: id,
-                        userId: account.userId,
-                        enable: enabled
-                    })
-                });
+                    try {
+                        await fetch(`${API}/auth/oauth/toggle-customer-access`, {
+                            method: "POST",
+                            headers: {
+                                ...authH(),
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify({
+                                adminId: id,
+                                userId: account.userId,   // ✅ ALWAYS parent
+                                customerId: cb.value,     // ✅ child
+                                checked: enabled
+                            })
+                        });
+                    } catch (err) {
+                        console.error("Parent bulk toggle failed", err);
+                    }
+                }
             });
 
             accountWrapper.appendChild(parentRow);
@@ -298,10 +320,6 @@ async function openEdit(id) {
         console.error('Error:', err);
     }
 }
-
-document.getElementById('closeModal').onclick = () => {
-    document.getElementById('editModal').style.display = 'none';
-};
 
 document.getElementById('closeModal').onclick = () => {
     document.getElementById('editModal').style.display = 'none';
