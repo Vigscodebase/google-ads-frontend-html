@@ -196,9 +196,20 @@ tr:hover {
     backdrop-filter: blur(3px);
 }
 
-.modal-content {
+.edit-modal-content {
     background: white;
-    margin: 10% auto;
+    margin: 0% auto;
+    padding: 30px;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+.delete-modal-content {
+    background: white;
+    margin: 15% auto;
     padding: 30px;
     border-radius: 15px;
     width: 90%;
