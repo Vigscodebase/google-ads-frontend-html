@@ -288,7 +288,11 @@ async function openEdit(id) {
                 const children = customerContainer.querySelectorAll(".child-checkbox");
 
                 for (const cb of children) {
-                    cb.checked = enabled;
+
+                    // ❌ REMOVE auto-checking
+                    // cb.checked = enabled;
+
+                    // ✅ ONLY enable/disable
                     cb.disabled = !enabled;
 
                     try {
@@ -300,9 +304,9 @@ async function openEdit(id) {
                             },
                             body: JSON.stringify({
                                 adminId: id,
-                                userId: account.userId,   // ✅ ALWAYS parent
-                                customerId: cb.value,     // ✅ child
-                                checked: enabled
+                                userId: account.userId,
+                                customerId: cb.value,
+                                checked: cb.checked   // ✅ send actual state, NOT forced enabled
                             })
                         });
                     } catch (err) {
