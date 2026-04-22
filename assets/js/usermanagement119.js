@@ -176,8 +176,12 @@ async function openEdit(id) {
             parentCheckbox.value = account.userId;
 
             //const isParentChecked = selectedIds.includes(account.userId);
-            const isParentChecked =
-                (customerAccessMap[account.userId] || []).length > 0;
+            // ✅ DEFINE BEFORE USING
+            const customerIds = customerAccessMap[account.userId] || [];
+            const isParentChecked = customerIds.length > 0;
+
+            // ✅ USE IT
+            parentCheckbox.checked = isParentChecked;
 
             const parentLabel = document.createElement('label');
             parentLabel.innerHTML = `
@@ -261,8 +265,7 @@ async function openEdit(id) {
                 cb.checked = (customerAccessMap[account.userId] || []).includes(c.id);
 
                 // ✅ disabled if parent unchecked
-                //cb.disabled = !isParentChecked;
-                cb.disabled = !parentCheckbox.checked;
+                cb.disabled = !isParentChecked;
 
                 const label = document.createElement('label');
 
@@ -333,8 +336,9 @@ async function updateUser() {
     const password = document.getElementById('editPassword').value;
 
     // ✅ collect selected checkboxes
-    const checkedBoxes = document.querySelectorAll('#oauthCheckboxList input:checked');
-    const accessUserIds = Array.from(checkedBoxes).map(cb => cb.value);
+    //const checkedBoxes = document.querySelectorAll('#oauthCheckboxList input:checked');
+    const checkedParents = document.querySelectorAll('.parent-checkbox:checked');
+    const accessUserIds = Array.from(checkedParents).map(cb => cb.value);
 
     const bodyData = { name, email, role, accessUserIds };
 
