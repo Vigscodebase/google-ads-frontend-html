@@ -240,20 +240,25 @@ function buildCustomerDropdown(customers) {
         const opt = document.createElement('option');
         opt.value = c.id;
 
+        //const label = `${c.name} - ${c.id}` || `Customer - ${c.id}`;
+        const label = c.name ? `${c.name} - ${c.id}` : `Customer - ${c.id}`;
+        const baseText = `${label} (${c.id})`;
+
         if (c.status === "error") {
-            opt.textContent = `❌ ${c.id} - ${c.error}`;
+            opt.textContent = `❌ ${baseText} - ${c.error || 'Google API error'}`;
+            opt.disabled = true;
             opt.style.color = "red";
-            opt.disabled = true; // 🚀 prevents bad selection
-        } else if (c.status === "empty") {
-            opt.textContent = `⚠️ ${c.id} - No campaigns`;
-        } else {
-            opt.textContent = `✅ ${c.id} - ${c.name}`;
+        }
+        else if (c.status === "empty") {
+            opt.textContent = `⚠️ ${baseText} - No campaigns`;
+        }
+        else {
+            opt.textContent = `✅ ${baseText}`;
         }
 
         sel.appendChild(opt);
     });
 
-    // ✅ select first valid customer
     const firstValid = customers.find(c => c.status === "success");
 
     if (firstValid) {
