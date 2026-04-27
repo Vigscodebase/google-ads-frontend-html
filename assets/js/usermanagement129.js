@@ -304,6 +304,7 @@ async function openEdit(id) {
                 const row = document.createElement('div');
 
                 /* ── Google API error customer: show inline error, no checkbox ── */
+
                 if (c.status === 'error') {
                     row.className = 'cust-api-error';
                     // Format matches dashboard: ❌ Name (ID) — Error message
