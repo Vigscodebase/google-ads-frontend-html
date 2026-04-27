@@ -9,18 +9,18 @@ const adminEmail = localStorage.getItem('adminEmail') || '';
 const authH = () => ({ 'x-session-token': token });
 
 // ── State ──────────────────────────────────────
-let allCampaigns      = [];   // raw data from API (merged across selected customers)
+let allCampaigns = [];   // raw data from API (merged across selected customers)
 let filteredCampaigns = [];   // after status + search filters
-let allAccounts       = [];
-let allCustomers      = [];   // full customer list for active account
+let allAccounts = [];
+let allCustomers = [];   // full customer list for active account
 
-let activeUserId     = null;
+let activeUserId = null;
 let activeAccountIdx = 0;     // index in allAccounts currently selected
 
 // Multi-select state
 let selectedCustomerIds = new Set(['__all__']); // '__all__' means every customer
-let selectedStatuses    = new Set(['ENABLED', 'PAUSED', 'REMOVED']); // all by default
-let searchQuery         = '';
+let selectedStatuses = new Set(['ENABLED', 'PAUSED', 'REMOVED']); // all by default
+let searchQuery = '';
 
 // ── Helpers ────────────────────────────────────
 function fmtSpend(m) {
@@ -44,16 +44,16 @@ function fmtCurrency(val) {
 }
 function getType(name) {
     const n = name.toUpperCase();
-    if (n.includes('PMAX'))  return { label: 'PMAX',   cls: 'badge-pmax' };
-    if (n.includes('TCPA'))  return { label: 'TCPA',   cls: 'badge-tcpa' };
+    if (n.includes('PMAX')) return { label: 'PMAX', cls: 'badge-pmax' };
+    if (n.includes('TCPA')) return { label: 'TCPA', cls: 'badge-tcpa' };
     if (n.startsWith('M -')) return { label: 'MOBILE', cls: 'badge-mobile' };
     return { label: 'SEARCH', cls: 'badge-search' };
 }
 function getStatus(s) {
     if (!s) return { label: '—', cls: '' };
     const v = s.toUpperCase();
-    if (v === 'ENABLED') return { label: 'ACTIVE',  cls: 'status-enabled' };
-    if (v === 'PAUSED')  return { label: 'PAUSED',  cls: 'status-paused' };
+    if (v === 'ENABLED') return { label: 'ACTIVE', cls: 'status-enabled' };
+    if (v === 'PAUSED') return { label: 'PAUSED', cls: 'status-paused' };
     if (v === 'REMOVED') return { label: 'REMOVED', cls: 'status-removed' };
     return { label: v, cls: '' };
 }
@@ -64,9 +64,9 @@ function buildCampaignUrl(userId, customerId) {
 
 // ── UI Helpers ─────────────────────────────────
 function showLoading(state) {
-    document.getElementById('loading').style.display    = state ? 'flex' : 'none';
+    document.getElementById('loading').style.display = state ? 'flex' : 'none';
     document.getElementById('table-inner').style.display = state ? 'none' : 'block';
-    document.getElementById('error-box').style.display  = 'none';
+    document.getElementById('error-box').style.display = 'none';
 }
 function showError(msg) {
     showLoading(false);
@@ -80,7 +80,7 @@ function clearAndRedirect() {
     window.location.href = 'index.html';
 }
 function setAdminUI() {
-    document.getElementById('admin-email').textContent  = adminEmail || '—';
+    document.getElementById('admin-email').textContent = adminEmail || '—';
     document.getElementById('admin-avatar').textContent = adminEmail ? adminEmail[0].toUpperCase() : '?';
 }
 
@@ -89,14 +89,14 @@ function renderStats(campaigns) {
     let spend = 0, impr = 0, clicks = 0, active = 0, revenue = 0;
     campaigns.forEach(c => {
         const m = c.metrics || {};
-        spend   += Number(m.costMicros       || 0);
-        impr    += Number(m.impressions      || 0);
-        clicks  += Number(m.clicks           || 0);
+        spend += Number(m.costMicros || 0);
+        impr += Number(m.impressions || 0);
+        clicks += Number(m.clicks || 0);
         revenue += Number(m.conversionsValue || 0);
         if (c.campaign?.status === 'ENABLED') active++;
     });
-    document.getElementById('stat-spend').textContent  = fmtSpend(spend);
-    document.getElementById('stat-impr').textContent   = fmtNum(impr);
+    document.getElementById('stat-spend').textContent = fmtSpend(spend);
+    document.getElementById('stat-impr').textContent = fmtNum(impr);
     document.getElementById('stat-clicks').textContent = fmtNum(clicks);
     document.getElementById('stat-active').textContent = active;
     const rev = document.getElementById('stat-revenue');
@@ -106,7 +106,7 @@ function renderStats(campaigns) {
 
 // ── Campaign table ─────────────────────────────
 function renderCampaigns(list) {
-    const el    = document.getElementById('campaign-list');
+    const el = document.getElementById('campaign-list');
     const empty = document.getElementById('empty');
     if (!list.length) {
         el.innerHTML = '';
@@ -116,13 +116,13 @@ function renderCampaigns(list) {
     }
     empty.style.display = 'none';
     el.innerHTML = list.map((c, i) => {
-        const t     = getType(c.campaign.name);
-        const st    = getStatus(c.campaign.status);
+        const t = getType(c.campaign.name);
+        const st = getStatus(c.campaign.status);
         const spend = fmtSpend(c.metrics?.costMicros);
-        const impr  = fmtNum(c.metrics?.impressions);
+        const impr = fmtNum(c.metrics?.impressions);
         const clicks = fmtNum(c.metrics?.clicks);
-        const ctr   = fmtCTR(c.metrics?.ctr);
-        const cid   = c._customerId || '—';
+        const ctr = fmtCTR(c.metrics?.ctr);
+        const cid = c._customerId || '—';
         return `
         <div class="campaign-row" style="animation-delay:${i * 18}ms">
             <div class="cell-num">${String(i + 1).padStart(2, '0')}</div>
@@ -487,47 +487,131 @@ function loadAllAccounts() {
 
 const currentPage = window.location.pathname.split('/').pop();
 
+// if (!token) {
+//     window.location.href = 'index.html';
+// } else {
+//     let decoded;
+//     try { decoded = jwtDecode(token); } catch (e) { window.location.href = 'index.html'; }
+
+//     const isSuperAdmin = decoded && decoded.role === 'super_admin';
+
+//     if (!isSuperAdmin && currentPage === 'adminview.html') {
+//         window.location.href = 'dashboard.html';
+//     }
+
+//     document.getElementById('admin-view').style.display = isSuperAdmin ? 'flex' : 'none';
+//     document.getElementById('usr-management').style.display = isSuperAdmin ? 'flex' : 'none';
+
+//     fetch(`${API}/logincheck/me`, { headers: { 'x-session-token': token } })
+//         .then(r => {
+//             if (!r.ok) { clearAndRedirect(); return; }
+//             document.body.classList.remove('auth-pending');
+//             setAdminUI();
+//             wireStatusCheckboxes();
+//             wireCollapsibles();
+//             loadAllAccounts();
+//         })
+//         .catch(() => {
+//             document.body.classList.remove('auth-pending');
+//             setAdminUI();
+//             wireStatusCheckboxes();
+//             wireCollapsibles();
+//             loadAllAccounts();
+//         });
+// }
+
 if (!token) {
-    window.location.href = 'index.html';
+    if (currentPage !== "index.html") {
+        window.location.href = "index.html";
+    }
 } else {
+
     let decoded;
-    try { decoded = jwtDecode(token); } catch (e) { window.location.href = 'index.html'; }
 
-    const isSuperAdmin = decoded && decoded.role === 'super_admin';
-
-    if (!isSuperAdmin && currentPage === 'adminview.html') {
-        window.location.href = 'dashboard.html';
+    try {
+        decoded = jwtDecode(token);
+    } catch (e) {
+        if (currentPage !== "index.html") {
+            window.location.href = "index.html";
+        }
     }
 
-    document.getElementById('admin-view').style.display = isSuperAdmin ? 'flex' : 'none';
-    document.getElementById('usr-management').style.display = isSuperAdmin ? 'flex' : 'none';
+    if (decoded && decoded.role !== 'super_admin') {
+        if (currentPage === "accountaccess.html") {
+            window.location.href = "dashboard.html";
+        }
 
-    fetch(`${API}/logincheck/me`, { headers: { 'x-session-token': token } })
-        .then(r => {
-            if (!r.ok) { clearAndRedirect(); return; }
-            document.body.classList.remove('auth-pending');
-            setAdminUI();
-            wireStatusCheckboxes();
-            wireCollapsibles();
-            loadAllAccounts();
-        })
-        .catch(() => {
-            document.body.classList.remove('auth-pending');
-            setAdminUI();
-            wireStatusCheckboxes();
-            wireCollapsibles();
-            loadAllAccounts();
-        });
+        if (currentPage === "usermanagement.html") {
+            window.location.href = "dashboard.html";
+        }
+
+        if (currentPage === "adminview.html") {
+            window.location.href = "dashboard.html";
+        }
+        document.body.classList.remove('auth-pending');
+        document.getElementById("usr-management").style.display = "none";
+        document.getElementById('admin-view').style.display = "none"
+        fetch(`${API}/logincheck/me`, { headers: { 'x-session-token': token } })
+            .then(r => {
+                if (!r.ok) { clearAndRedirect(); return; }
+                document.body.classList.remove('auth-pending');
+                setAdminUI();
+                wireStatusCheckboxes();
+                wireCollapsibles();
+                loadAllAccounts();
+            })
+            .catch(() => {
+                document.body.classList.remove('auth-pending');
+                setAdminUI();
+                wireStatusCheckboxes();
+                wireCollapsibles();
+                loadAllAccounts();
+            });
+    } else {
+        if (currentPage === "usermanagement.html") {
+            document.getElementById("usr-management").style.display = "block";
+            document.getElementById('admin-view').style.display = "block"
+        }
+
+        if (currentPage === "accountaccess.html") {
+            document.getElementById("usr-management").style.display = "block";
+            document.getElementById('admin-view').style.display = "block"
+        }
+
+        if (currentPage === "adminview.html") {
+            document.getElementById("usr-management").style.display = "block";
+            document.getElementById('admin-view').style.display = "block"
+        }
+        document.getElementById("usr-management").style.display = "block";
+        document.getElementById('admin-view').style.display = "block"
+        fetch(`${API}/logincheck/me`, { headers: { 'x-session-token': token } })
+            .then(r => {
+                if (!r.ok) { clearAndRedirect(); return; }
+                document.body.classList.remove('auth-pending');
+                setAdminUI();
+                wireStatusCheckboxes();
+                wireCollapsibles();
+                loadAllAccounts();
+            })
+            .catch(() => {
+                document.body.classList.remove('auth-pending');
+                setAdminUI();
+                wireStatusCheckboxes();
+                wireCollapsibles();
+                loadAllAccounts();
+            });
+    }
+
 }
 
 // ── Sidebar nav dropdown ────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-    const toggle   = document.getElementById('newsBreakToggle');
+    const toggle = document.getElementById('newsBreakToggle');
     const dropdown = toggle?.parentElement;
     toggle?.addEventListener('click', () => dropdown.classList.toggle('open'));
 
     document.getElementById('btn-logout')?.addEventListener('click', async () => {
-        try { await fetch(`${API}/logincheck/logout`, { method: 'POST', headers: { 'x-session-token': token } }); } catch {}
+        try { await fetch(`${API}/logincheck/logout`, { method: 'POST', headers: { 'x-session-token': token } }); } catch { }
         clearAndRedirect();
     });
 });

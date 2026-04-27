@@ -41,9 +41,12 @@ if (!token) {
         if (currentPage === "usermanagement.html") {
             window.location.href = "dashboard.html";
         }
+        if (currentPage === "adminview.html") {
+            window.location.href = "dashboard.html";
+        }
         document.body.classList.remove('auth-pending');
         document.getElementById("usr-management").style.display = "none";
-        // document.getElementById("account-access").style.display = "none";
+        document.getElementById('admin-view').style.display = "none"
         fetch(`${API}/logincheck/me`, { headers: { 'x-session-token': token } })
             .then(r => {
                 if (!r.ok) { clearAndRedirect(); return; }
@@ -60,16 +63,22 @@ if (!token) {
         if (currentPage === "usermanagement.html") {
             // window.location.href = 'dashboard.html';
             document.getElementById("usr-management").style.display = "block";
-            // document.getElementById("account-access").style.display = "block";
+            document.getElementById('admin-view').style.display = "block"
         }
 
         if (currentPage === "accountaccess.html") {
             // window.location.href = 'dashboard.html';
             document.getElementById("usr-management").style.display = "block";
-            // document.getElementById("account-access").style.display = "block";
+            document.getElementById('admin-view').style.display = "block"
+        }
+
+        if (currentPage === "adminview.html") {
+            // window.location.href = 'dashboard.html';
+            document.getElementById("usr-management").style.display = "block";
+            document.getElementById('admin-view').style.display = "block"
         }
         document.getElementById("usr-management").style.display = "block";
-        // document.getElementById("account-access").style.display = "block";
+        document.getElementById('admin-view').style.display = "block"
         fetch(`${API}/logincheck/me`, { headers: { 'x-session-token': token } })
             .then(r => {
                 if (!r.ok) { clearAndRedirect(); return; }

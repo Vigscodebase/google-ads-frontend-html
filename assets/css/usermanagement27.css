@@ -218,6 +218,17 @@ tr:hover {
     animation: modalSlideIn 0.3s ease-out;
 }
 
+.add-modal-content {
+    background: white;
+    margin: 7% auto;
+    padding: 30px;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+    animation: modalSlideIn 0.3s ease-out;
+}
+
 @keyframes modalSlideIn {
     from {
         transform: translateY(-50px);

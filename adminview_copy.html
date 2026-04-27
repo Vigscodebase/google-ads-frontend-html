@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Admin View — Campaign Intelligence</title>
+        <link rel="stylesheet" href="assets/css/shared14.css">
+        <link rel="stylesheet" href="assets/css/adminview5.css">
+    </head>
+    <body class="auth-pending">
+
+        <div class="top-rule"></div>
+        <div class="layout">
+
+            <!-- ══ NAV SIDEBAR ══ -->
+            <aside class="sidebar">
+                <div class="sidebar-nav">
+                    <div class="sidebar-section-label">Menu</div>
+
+                    <div class="nav-item dropdown children-dropdown">
+                        <div class="dropdown-toggle" id="newsBreakToggle">
+                            <span class="nav-icon">⊞</span> Google Ads
+                            <span class="arrow-right">▸</span>
+                            <span class="arrow-down">▾</span>
+                        </div>
+                        <div class="dropdown-menu" id="googleAdsMenu">
+                            <a class="nav-sub-item" href="dashboard.html">
+                                <span class="nav-icon">⊞</span> Campaigns
+                            </a>
+                            <a class="nav-sub-item" href="accountmanagement.html">
+                                <span class="nav-icon">⊞</span> Accounts
+                            </a>
+                        </div>
+                    </div>
+
+                    <a id="usr-management" class="nav-item" href="usermanagement.html">
+                        <span class="nav-icon">⊞</span> User Management
+                    </a>
+                    <a id="admin-view" class="nav-item active" href="adminview.html">
+                        <span class="nav-icon">⊞</span> Admin View
+                    </a>
+                </div>
+
+                <div class="sidebar-bottom">
+                    <div class="admin-pill">
+                        <div class="admin-avatar" id="admin-avatar">—</div>
+                        <div class="admin-email" id="admin-email">—</div>
+                    </div>
+                    <button class="btn-logout" id="btn-logout">Sign Out</button>
+                </div>
+            </aside>
+
+            <!-- ══ MAIN ══ -->
+            <main class="main">
+
+                <div class="page-header">
+                    <div>
+                        <div class="page-eyebrow">Google Ads</div>
+                        <div class="page-title">Admin View <span>Management</span></div>
+                    </div>
+                    <div class="av-meta">
+                        <span class="av-meta-item" id="footer-time">—</span>
+                    </div>
+                </div>
+
+                <!-- ══ CONTENT AREA: FILTER PANEL + CAMPAIGNS ══ -->
+                <div class="av-layout">
+
+                    <!-- ── FILTER PANEL (Amazon/Flipkart style) ── -->
+                    <aside class="filter-panel" id="filter-panel">
+
+                        <div class="fp-header">
+                            <span class="fp-title">Filters</span>
+                            <button class="fp-clear-all" id="fp-clear-all">Clear All</button>
+                        </div>
+
+                        <!-- Active filter count -->
+                        <div class="fp-active-bar" id="fp-active-bar" style="display:none;">
+                            <span id="fp-active-count">0</span> filter(s) active
+                        </div>
+
+                        <!-- ── SECTION 1: Google Account ── -->
+                        <div class="fp-section" id="fp-sec-account">
+                            <div class="fp-section-header" data-target="fp-sec-account">
+                                <span class="fp-section-title">Google Account</span>
+                                <span class="fp-chevron">▾</span>
+                            </div>
+                            <div class="fp-section-body" id="fp-body-account">
+                                <div class="fp-loading-text" id="fp-account-loading">Loading…</div>
+                                <!-- JS will populate radio options here -->
+                            </div>
+                        </div>
+
+                        <div class="fp-divider"></div>
+
+                        <!-- ── SECTION 2: Customer IDs ── -->
+                        <div class="fp-section" id="fp-sec-customer">
+                            <div class="fp-section-header" data-target="fp-sec-customer">
+                                <span class="fp-section-title">Customer IDs</span>
+                                <span class="fp-chevron">▾</span>
+                            </div>
+                            <div class="fp-section-body" id="fp-body-customer">
+                                <div class="fp-loading-text" id="fp-customer-loading">Select an account first…</div>
+                            </div>
+                        </div>
+
+                        <div class="fp-divider"></div>
+
+                        <!-- ── SECTION 3: Campaign Status ── -->
+                        <div class="fp-section" id="fp-sec-status">
+                            <div class="fp-section-header" data-target="fp-sec-status">
+                                <span class="fp-section-title">Campaign Status</span>
+                                <span class="fp-chevron">▾</span>
+                            </div>
+                            <div class="fp-section-body" id="fp-body-status">
+
+                                <label class="fp-checkbox-row">
+                                    <input type="checkbox" class="fp-status-cb" value="ENABLED" checked>
+                                    <span class="fp-cb-box"></span>
+                                    <span class="fp-cb-label">
+                                        <span class="fp-status-dot dot-live"></span> Live
+                                    </span>
+                                </label>
+
+                                <label class="fp-checkbox-row">
+                                    <input type="checkbox" class="fp-status-cb" value="PAUSED" checked>
+                                    <span class="fp-cb-box"></span>
+                                    <span class="fp-cb-label">
+                                        <span class="fp-status-dot dot-paused"></span> Paused
+                                    </span>
+                                </label>
+
+                                <label class="fp-checkbox-row">
+                                    <input type="checkbox" class="fp-status-cb" value="REMOVED" checked>
+                                    <span class="fp-cb-box"></span>
+                                    <span class="fp-cb-label">
+                                        <span class="fp-status-dot dot-removed"></span> Removed
+                                    </span>
+                                </label>
+
+                            </div>
+                        </div>
+
+                    </aside>
+
+                    <!-- ── CAMPAIGN CONTENT ── -->
+                    <div class="av-content">
+
+                        <!-- Stats -->
+                        <div class="stats-grid">
+                            <div class="stat-card blue">
+                                <div class="stat-label">Total Spend</div>
+                                <div class="stat-value blue" id="stat-spend">—</div>
+                                <div class="stat-sub" id="stat-spend-sub">All time</div>
+                            </div>
+                            <div class="stat-card amberlight">
+                                <div class="stat-label">Revenue</div>
+                                <div class="stat-value amberlight" id="stat-revenue">—</div>
+                                <div class="stat-sub">Conversions value</div>
+                            </div>
+                            <div class="stat-card teal">
+                                <div class="stat-label">Impressions</div>
+                                <div class="stat-value teal" id="stat-impr">—</div>
+                                <div class="stat-sub">All campaigns</div>
+                            </div>
+                            <div class="stat-card coral">
+                                <div class="stat-label">Total Clicks</div>
+                                <div class="stat-value coral" id="stat-clicks">—</div>
+                                <div class="stat-sub">All campaigns</div>
+                            </div>
+                            <div class="stat-card green">
+                                <div class="stat-label">Active Campaigns</div>
+                                <div class="stat-value green" id="stat-active">—</div>
+                                <div class="stat-sub" id="stat-total-sub">of — total</div>
+                            </div>
+                        </div>
+
+                        <!-- Toolbar -->
+                        <div class="toolbar">
+                            <div class="toolbar-left">
+                                <span class="toolbar-title">Campaigns</span>
+                                <span class="count-chip" id="count-chip">…</span>
+                            </div>
+                            <div class="search-wrap">
+                                <span class="search-icon">⌕</span>
+                                <input type="text" id="search"
+                                    placeholder="Search name or ID…"
+                                    oninput="onSearch(this.value)" />
+                            </div>
+                        </div>
+
+                        <!-- Table -->
+                        <div class="table-wrap">
+                            <div class="state-box" id="loading">
+                                <div class="spinner"></div>
+                                <div class="state-label">Fetching campaigns…</div>
+                            </div>
+                            <div class="state-box" id="error-box" style="display:none;">
+                                <div style="font-size:26px;color:var(--amber);">⚠</div>
+                                <div class="error-text" id="error-msg">An error occurred.</div>
+                            </div>
+                            <div id="table-inner" style="display:none;">
+                                <div class="table-head camp-grid">
+                                    <div class="th">#</div>
+                                    <div class="th">Campaign</div>
+                                    <div class="th">Customer</div>
+                                    <div class="th">Type</div>
+                                    <div class="th">Spend</div>
+                                    <div class="th">Impressions</div>
+                                    <div class="th col-clicks">Clicks</div>
+                                    <div class="th col-ctr right">CTR</div>
+                                </div>
+                                <div id="campaign-list"></div>
+                                <div class="empty-text" id="empty" style="display:none;">
+                                    No campaigns match the selected filters
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="page-footer">
+                            <span>Google Ads API · Admin View</span>
+                            <span>Fetched <span id="meta-time">—</span> · <span id="footer-count">—</span></span>
+                        </div>
+
+                    </div><!-- /.av-content -->
+
+                </div><!-- /.av-layout -->
+
+            </main>
+        </div>
+
+        <script>
+            document.getElementById('footer-time').textContent =
+                'Updated ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/jwt-decode@4.0.0/build/cjs/index.min.js"></script>
+        <script src="assets/js/adminview15.js"></script>
+    </body>
+</html>
