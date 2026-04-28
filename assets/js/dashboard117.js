@@ -522,7 +522,7 @@ function renderCampaigns(list, userId, customerId, data) {
         return `
        <div class="campaign-row"
      style="animation-delay:${i * 22}ms"
-     onclick="openCampaignModal(${c.campaign.id}, '${userId}', '${customerId}')">
+     onclick="openCampaignModal(${c.campaign.id})">
 
     <div class="cell-num">${String(i + 1).padStart(2, '0')}</div>
 
@@ -615,7 +615,8 @@ function updateCampaign() {
         .then(() => {
             alert('Campaign updated');
             closeModal();
-            loadCampaigns(currentUserId, currentCustomerId);
+            //loadCampaigns(currentUserId, currentCustomerId);
+            loadCampaigns(activeUserId, activeCustomerId);
         })
         .catch(() => alert('Update failed'));
 }
@@ -649,22 +650,30 @@ function renderCampaignDetails(data) {
 
 let selectedCampaignId = null;
 
-function openCampaignModal(campaignId, userId, customerId) {
+function openCampaignModal(campaignId) {
     selectedCampaignId = campaignId;
+
     const modal = document.getElementById('campaign-modal');
     const body = document.getElementById('modal-body');
 
     modal.style.display = 'block';
     body.innerHTML = 'Loading...';
 
-    fetch(`${API}/auth/single-campaign?campaignId=${campaignId}&userId=${userId}&customerId=${customerId}`, {
-        headers: authH(), method: 'GET',
+    // ✅ SAFETY CHECK
+    if (!activeUserId || !activeCustomerId) {
+        body.innerHTML = 'User or Customer not selected';
+        return;
+    }
+
+    fetch(`${API}/auth/single-campaign?campaignId=${campaignId}&userId=${activeUserId}&customerId=${activeCustomerId}`, {
+        headers: authH(),
+        method: 'GET',
     })
         .then(res => res.json())
         .then(data => {
             renderCampaignDetails(data);
         })
-        .catch(err => {
+        .catch(() => {
             body.innerHTML = 'Failed to load campaign';
         });
 }

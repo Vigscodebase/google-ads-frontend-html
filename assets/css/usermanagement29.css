@@ -80,7 +80,7 @@ h2 {
 
 label {
     display: block;
-    margin-bottom: 8px;
+    /* margin-bottom: 8px; */
     color: #4a5568;
     font-weight: 500;
 }
@@ -637,6 +637,7 @@ button:active {
     border: 1px solid #ddd;
     border-radius: 8px;
     padding: 10px;
+    margin: 4px 0px 0px 0px;
 }
 
 .checkbox-item {
@@ -797,4 +798,91 @@ button:active {
     .modal .btn-danger {
         width: 100%;
     }
+}
+
+/* =========================
+   EDIT MODAL RESPONSIVE FIX
+   - Update button stays visible on all screen sizes
+========================= */
+.edit-modal-content {
+    max-height: 92vh;
+    overflow-y: auto;
+    margin: 2% auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* scrollbar thin */
+.edit-modal-content::-webkit-scrollbar {
+    width: 5px;
+}
+
+.edit-modal-content::-webkit-scrollbar-thumb {
+    background: #e2e8f0;
+    border-radius: 10px;
+}
+
+@media (max-width: 600px) {
+    .edit-modal-content {
+        margin: 0 auto;
+        border-radius: 12px 12px 0 0;
+        max-height: 96vh;
+        width: 100%;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+    }
+
+    /* position modal at bottom on mobile */
+    #editModal {
+        align-items: flex-end;
+        display: none;
+        /* JS overrides to block */
+    }
+
+    #editModal.open-sheet {
+        display: flex !important;
+    }
+}
+
+/* =========================
+   ADMIN VIEW ACCESS CHECKBOX
+========================= */
+.adminview-access-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.15s;
+    width: fit-content;
+    min-width: 180px;
+    user-select: none;
+    margin: 4px 0px 0px 0px;
+}
+
+.adminview-access-row:hover {
+    border-color: #667eea;
+    background: #f0f4ff;
+}
+
+.adminview-cb {
+    width: 16px !important;
+    height: 16px !important;
+    accent-color: #667eea;
+    cursor: pointer;
+    flex-shrink: 0;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.adminview-cb-label {
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    color: #4a5568;
+    cursor: pointer;
+    display: inline !important;
+    margin: 0 !important;
 }

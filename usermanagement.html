@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>User Management — Campaign Intelligence</title>
         <link rel="stylesheet" href="assets/css/shared14.css">
-        <link rel="stylesheet" href="assets/css/usermanagement27.css">
+        <link rel="stylesheet" href="assets/css/usermanagement29.css">
     </head>
     <body class="auth-pending">
 
@@ -162,6 +162,17 @@
                     </select>
                 </div>
 
+                <!-- ✅ ADMIN VIEW ACCESS CHECKBOX - saved instantly on toggle & also on Update -->
+                <div class="form-group" id="adminViewAccessGroup">
+                    <label>Page Access</label>
+                    <div class="adminview-access-row">
+                        <input type="checkbox" id="editAdminViewAccess"
+                            class="adminview-cb">
+                        <label for="editAdminViewAccess"
+                            class="adminview-cb-label">Admin View</label>
+                    </div>
+                </div>
+
                 <div class="form-group">
                     <label>Account Access</label>
                     <div id="oauthCheckboxList" class="checkbox-scroll"></div>
@@ -239,6 +250,6 @@
 </script>
         <script
             src="https://cdn.jsdelivr.net/npm/jwt-decode@4.0.0/build/cjs/index.min.js"></script>
-        <script src="assets/js/usermanagement129.js"></script>
+        <script src="assets/js/usermanagement130.js"></script>
     </body>
 </html>
