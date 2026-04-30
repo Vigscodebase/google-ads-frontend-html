@@ -1105,3 +1105,75 @@ select {
         padding: 4px 10px;
     }
 }
+/* ════════════════════════════════════════════════════════
+   ADMIN VIEW — ADDITIONAL RESPONSIVE
+   Appended — does not modify existing rules
+   ════════════════════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+    /* Date filter bar pills scroll horizontally */
+    .dfb-bar {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 6px;
+        gap: 5px;
+    }
+    .dfb-btn { white-space: nowrap; flex-shrink: 0; }
+    .dfb-custom-panel .dfb-custom-inner { max-width: 100%; }
+
+    /* Filter panel stacks above content */
+    .av-layout { flex-direction: column; gap: 14px; }
+    .filter-panel { width: 100%; position: static; }
+
+    /* Multi-select dropdown panel — static on mobile to avoid clipping */
+    .ms-panel {
+        position: static !important;
+        width: 100% !important;
+        box-shadow: none;
+        border: 1.5px solid var(--border-dark);
+        margin-top: 4px;
+    }
+
+    /* Campaign table */
+    .table-head.camp-grid,
+    .campaign-row {
+        grid-template-columns: 32px 1fr 80px 90px;
+    }
+    .col-clicks, .col-ctr { display: none; }
+
+    /* Stats */
+    .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+
+    /* Header */
+    .av-header-right { flex-wrap: wrap; gap: 6px; }
+    .page-header { flex-direction: column; align-items: flex-start; gap: 10px; }
+
+    /* Campaign modal */
+    .modal-content {
+        width: 94vw !important;
+        max-width: unset !important;
+        padding: 20px 16px;
+        max-height: 88vh;
+        overflow-y: auto;
+    }
+    .modal-meta-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+}
+
+@media (max-width: 540px) {
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+    .dfb-outer { border-radius: 8px; }
+    .table-head.camp-grid,
+    .campaign-row {
+        grid-template-columns: 28px 1fr 70px;
+    }
+    /* Hide customer CID column on very small screens */
+    .cell-cid { display: none; }
+    .table-head .th:nth-child(3) { display: none; }
+}
+
+@media (max-width: 375px) {
+    .stats-grid { grid-template-columns: 1fr; }
+    .fp-section-body { padding: 4px 10px 12px; }
+    .ms-trigger { font-size: 11.5px; }
+}

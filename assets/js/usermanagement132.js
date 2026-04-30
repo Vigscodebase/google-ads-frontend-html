@@ -163,7 +163,7 @@ async function loadUserList() {
     showLoading(true);
 
     try {
-        const response = await fetch(`${API}/auth/admin-list`, {
+        const response = await secureFetch(`${API}/auth/admin-list`, {
             headers: authH()
         });
 
@@ -219,7 +219,7 @@ async function loadUserList() {
 /* Load roles for Edit modal */
 async function loadRolesForEdit() {
     try {
-        const res = await fetch(`${API}/role/all-roles`, {
+        const res = await secureFetch(`${API}/role/all-roles`, {
             headers: authH()
         });
 
@@ -276,7 +276,7 @@ async function openEdit(id) {
     showFetchOverlay(true);   // ← show loader BEFORE any async work
     try {
         // ✅ Load user basic info
-        const res = await fetch(`${API}/auth/single-user/${id}`, {
+        const res = await secureFetch(`${API}/auth/single-user/${id}`, {
             headers: authH()
         });
         const data = await res.json();
@@ -323,7 +323,7 @@ async function openEdit(id) {
            ✅ LOAD ALL ACCOUNTS (ONLY ONCE)
         =============================== */
         if (!GLOBAL_ACCOUNTS) {
-            const matrixRes = await fetch(`${API}/auth/access-matrix`, {
+            const matrixRes = await secureFetch(`${API}/auth/access-matrix`, {
                 headers: authH()
             });
 
@@ -377,7 +377,7 @@ async function openEdit(id) {
             // fetch customers once
             if (!GLOBAL_CUSTOMERS_MAP[account.userId]) {
                 try {
-                    const custRes = await fetch(`${API}/auth/customers-lite?userId=${account.userId}`, {
+                    const custRes = await secureFetch(`${API}/auth/customers-lite?userId=${account.userId}`, {
                         headers: authH()
                     });
                     const custData = await custRes.json();
@@ -418,7 +418,7 @@ async function openEdit(id) {
 
                     try {
 
-                        await fetch(`${API}/auth/oauth/toggle-customer-access`, {
+                        await secureFetch(`${API}/auth/oauth/toggle-customer-access`, {
                             method: "POST",
                             headers: {
                                 ...authH(),
@@ -472,7 +472,7 @@ async function openEdit(id) {
 
                 for (const cb of children) {
                     try {
-                        await fetch(`${API}/auth/oauth/toggle-customer-access`, {
+                        await secureFetch(`${API}/auth/oauth/toggle-customer-access`, {
                             method: "POST",
                             headers: {
                                 ...authH(),
@@ -565,7 +565,7 @@ async function confirmDelete() {
     const id = document.getElementById('deleteUserId').value;
 
     try {
-        await fetch(`${API}/auth/delete-user/${id}`, {
+        await secureFetch(`${API}/auth/delete-user/${id}`, {
             method: 'DELETE',
             headers: authH()
         });
@@ -582,7 +582,7 @@ async function confirmDelete() {
 
 async function loadRoles(selectedRole = null) {
     try {
-        const res = await fetch(`${API}/auth/roles`, {
+        const res = await secureFetch(`${API}/auth/roles`, {
             headers: authH()
         });
 
@@ -619,7 +619,7 @@ document.getElementById('closeAddModal').onclick = closeAddUser;
 
 async function loadOauthCheckboxes() {
     try {
-        const res = await fetch(`${API}/oauth/list`, {
+        const res = await secureFetch(`${API}/oauth/list`, {
             headers: authH()
         });
 
@@ -651,7 +651,7 @@ async function loadOauthCheckboxes() {
 /* Load roles for ADD modal */
 async function loadRolesForAdd() {
     try {
-        const res = await fetch(`${API}/role/all-roles`, {
+        const res = await secureFetch(`${API}/role/all-roles`, {
             headers: authH()
         });
 
@@ -682,7 +682,7 @@ async function createUser() {
     }
 
     try {
-        await fetch(`${API}/auth/create-user`, {
+        await secureFetch(`${API}/auth/create-user`, {
             method: 'POST',
             headers: {
                 ...authH(),
@@ -731,16 +731,19 @@ if (!token) {
         document.body.classList.remove('auth-pending');
         document.getElementById("usr-management").style.display = "none";
         //document.getElementById("account-access").style.display = "none";
-        fetch(`${API}/logincheck/me`, { headers: { 'x-session-token': token } })
+        secureFetch(`${API}/logincheck/me`, { headers: { 'x-session-token': token } })
             .then(r => {
                 if (!r.ok) { clearAndRedirect(); return; }
                 document.body.classList.remove('auth-pending');
                 setAdminUI();
+                checkAdminViewAccess();
+                injectMobileMenu();
                 Promise.all([loadUserList()]);
             })
             .catch(() => {
                 document.body.classList.remove('auth-pending');
                 setAdminUI();
+                injectMobileMenu();
                 Promise.all([loadUserList()]);
             });
     } else {
@@ -756,16 +759,19 @@ if (!token) {
             document.getElementById("usr-management").style.display = "block";
             //document.getElementById("account-access").style.display = "block";
         }
-        fetch(`${API}/logincheck/me`, { headers: { 'x-session-token': token } })
+        secureFetch(`${API}/logincheck/me`, { headers: { 'x-session-token': token } })
             .then(r => {
                 if (!r.ok) { clearAndRedirect(); return; }
                 document.body.classList.remove('auth-pending');
                 setAdminUI();
+                checkAdminViewAccess();
+                injectMobileMenu();
                 Promise.all([loadUserList()]);
             })
             .catch(() => {
                 document.body.classList.remove('auth-pending');
                 setAdminUI();
+                injectMobileMenu();
                 Promise.all([loadUserList()]);
             });
     }
@@ -786,8 +792,63 @@ function setAdminUI() {
     if (e) e.textContent = adminEmail || '—';
     if (a) a.textContent = adminEmail ? adminEmail[0].toUpperCase() : '?';
 }
+
+/* ── Check canAccessAdminView permission and hide nav + protect adminview URL ── */
+async function checkAdminViewAccess() {
+    try {
+        const res = await secureFetch(`${API}/auth/my-permissions`, { headers: authH() });
+        if (!res.ok) return;
+        const data = await res.json();
+
+        // super_admin always has access
+        if (data.role === 'super_admin') return;
+
+        if (!data.canAccessAdminView) {
+            // Hide admin-view nav link on all pages
+            const navLink = document.getElementById('admin-view');
+            if (navLink) navLink.style.display = 'none';
+
+            // If currently on adminview.html, redirect away
+            if (currentPage === 'adminview.html') {
+                window.location.href = 'dashboard.html';
+            }
+        }
+    } catch (err) {
+        console.error('checkAdminViewAccess error:', err);
+    }
+}
+
+/* ── Mobile sidebar hamburger — injected into DOM, no HTML changes needed ── */
+function injectMobileMenu() {
+    if (document.getElementById('mob-menu-btn')) return;
+    const sidebar  = document.querySelector('.sidebar');
+    if (!sidebar) return;
+
+    // Hamburger button
+    const btn = document.createElement('button');
+    btn.id = 'mob-menu-btn';
+    btn.setAttribute('aria-label', 'Toggle menu');
+    btn.innerHTML = `<span></span><span></span><span></span>`;
+    document.body.appendChild(btn);
+
+    // Backdrop overlay
+    const overlay = document.createElement('div');
+    overlay.id = 'mob-overlay';
+    document.body.appendChild(overlay);
+
+    btn.addEventListener('click', () => {
+        sidebar.classList.toggle('mob-open');
+        overlay.classList.toggle('mob-overlay-visible');
+        btn.classList.toggle('mob-open');
+    });
+    overlay.addEventListener('click', () => {
+        sidebar.classList.remove('mob-open');
+        overlay.classList.remove('mob-overlay-visible');
+        btn.classList.remove('mob-open');
+    });
+}
 document.getElementById('btn-logout').addEventListener('click', async () => {
-    try { await fetch(`${API}/logincheck/logout`, { method: 'POST', headers: { 'x-session-token': token } }); } catch { }
+    try { await secureFetch(`${API}/logincheck/logout`, { method: 'POST', headers: { 'x-session-token': token } }); } catch { }
     clearAndRedirect();
 });
 // ── UI helpers────────────────────────────────────────────────────────────────

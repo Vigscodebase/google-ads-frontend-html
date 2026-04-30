@@ -15,6 +15,97 @@ let activeDateRange = 'LAST_30_DAYS';
 let activeStartDate = '';
 let activeEndDate = '';
 
+/* ══════════════════════════════════════════════
+   SESSION EXPIRY — global handler
+   Called whenever any API returns 401 or a session-expired signal.
+   Hides all page content and redirects to login.
+   ══════════════════════════════════════════════ */
+function handleSessionExpiry() {
+    // Clear stored credentials
+    localStorage.removeItem('sessionToken');
+    localStorage.removeItem('adminEmail');
+
+    // Hide entire page content so nothing is visible while redirecting
+    const main = document.querySelector('.main');
+    const layout = document.querySelector('.layout');
+    if (main) main.style.display = 'none';
+    if (layout) layout.style.display = 'none';
+
+    // Close any open modals
+    ['editModal', 'deleteModal', 'addUserModal'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+    });
+
+    // Show a brief toast then redirect
+    const toast = document.createElement('div');
+    toast.style.cssText = [
+        'position:fixed', 'inset:0', 'display:flex', 'align-items:center',
+        'justify-content:center', 'background:rgba(0,0,0,0.6)',
+        'z-index:9999', 'color:#fff', 'font-size:16px', 'font-weight:600',
+        'font-family:sans-serif', 'flex-direction:column', 'gap:10px'
+    ].join(';');
+    toast.innerHTML = `
+        <div style="background:#1e293b;border-radius:12px;padding:28px 36px;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,0.4);">
+            <div style="font-size:28px;margin-bottom:10px;">🔒</div>
+            <div>Session expired</div>
+            <div style="font-size:13px;color:#94a3b8;margin-top:6px;">Redirecting to login…</div>
+        </div>`;
+    document.body.appendChild(toast);
+    setTimeout(() => { window.location.href = 'index.html'; }, 1800);
+}
+
+/**
+ * A wrapper around fetch() that auto-handles 401 / session-expired responses.
+ * Use everywhere instead of raw fetch().
+ */
+async function secureFetch(url, options = {}) {
+    const res = await fetch(url, options);
+    if (res.status === 401) {
+        handleSessionExpiry();
+        // Return a dummy object so callers don't crash on await res.json()
+        return { ok: false, status: 401, json: async () => ({}) };
+    }
+    // Also check JSON body for session-expired signals (some backends return 200 with an error key)
+    if (!res.ok) {
+        try {
+            const clone = res.clone();
+            const body = await clone.json();
+            const msg = (body?.message || body?.error || '').toLowerCase();
+            if (msg.includes('session') && (msg.includes('expire') || msg.includes('invalid'))) {
+                handleSessionExpiry();
+                return { ok: false, status: res.status, json: async () => ({}) };
+            }
+        } catch (_) { /* non-JSON body, ignore */ }
+    }
+    return res;
+}
+
+/* ── Check canAccessAdminView permission and hide nav + protect adminview URL ── */
+async function checkAdminViewAccess() {
+    try {
+        const res = await secureFetch(`${API}/auth/my-permissions`, { headers: authH() });
+        if (!res.ok) return;
+        const data = await res.json();
+
+        // super_admin always has access
+        if (data.role === 'super_admin') return;
+
+        if (!data.canAccessAdminView) {
+            // Hide admin-view nav link on all pages
+            const navLink = document.getElementById('admin-view');
+            if (navLink) navLink.style.display = 'none';
+
+            // If currently on adminview.html, redirect away
+            if (currentPage === 'adminview.html') {
+                window.location.href = 'dashboard.html';
+            }
+        }
+    } catch (err) {
+        console.error('checkAdminViewAccess error:', err);
+    }
+}
+
 const currentPage = window.location.pathname.split("/").pop();
 // ── Auth guard ──────────────────────────────────────────────────────────────
 if (!token) {
@@ -41,17 +132,18 @@ if (!token) {
         if (currentPage === "usermanagement.html") {
             window.location.href = "dashboard.html";
         }
-        if (currentPage === "adminview.html") {
-            window.location.href = "dashboard.html";
-        }
+        // if (currentPage === "adminview.html") {
+        //     window.location.href = "dashboard.html";
+        // }
         document.body.classList.remove('auth-pending');
         document.getElementById("usr-management").style.display = "none";
-        document.getElementById('admin-view').style.display = "none"
-        fetch(`${API}/logincheck/me`, { headers: { 'x-session-token': token } })
+        //document.getElementById('admin-view').style.display = "none"
+        secureFetch(`${API}/logincheck/me`, { headers: { 'x-session-token': token } })
             .then(r => {
                 if (!r.ok) { clearAndRedirect(); return; }
                 document.body.classList.remove('auth-pending');
                 setAdminUI();
+                checkAdminViewAccess();
                 loadAllAccounts();
             })
             .catch(() => {
@@ -63,27 +155,28 @@ if (!token) {
         if (currentPage === "usermanagement.html") {
             // window.location.href = 'dashboard.html';
             document.getElementById("usr-management").style.display = "block";
-            document.getElementById('admin-view').style.display = "block"
+            //document.getElementById('admin-view').style.display = "block"
         }
 
         if (currentPage === "accountaccess.html") {
             // window.location.href = 'dashboard.html';
             document.getElementById("usr-management").style.display = "block";
-            document.getElementById('admin-view').style.display = "block"
+            //document.getElementById('admin-view').style.display = "block"
         }
 
-        if (currentPage === "adminview.html") {
-            // window.location.href = 'dashboard.html';
-            document.getElementById("usr-management").style.display = "block";
-            document.getElementById('admin-view').style.display = "block"
-        }
+        // if (currentPage === "adminview.html") {
+        //     // window.location.href = 'dashboard.html';
+        //     document.getElementById("usr-management").style.display = "block";
+        //     document.getElementById('admin-view').style.display = "block"
+        // }
         document.getElementById("usr-management").style.display = "block";
-        document.getElementById('admin-view').style.display = "block"
-        fetch(`${API}/logincheck/me`, { headers: { 'x-session-token': token } })
+        //document.getElementById('admin-view').style.display = "block"
+        secureFetch(`${API}/logincheck/me`, { headers: { 'x-session-token': token } })
             .then(r => {
                 if (!r.ok) { clearAndRedirect(); return; }
                 document.body.classList.remove('auth-pending');
                 setAdminUI();
+                checkAdminViewAccess();
                 loadAllAccounts();
             })
             .catch(() => {
@@ -196,7 +289,7 @@ function setAdminUI() {
 
 function loadAllAccounts() {
     showLoading(true);
-    fetch(`${API}/auth/accounts?adminEmail=${adminEmail}`, { headers: authH() })
+    secureFetch(`${API}/auth/accounts?adminEmail=${adminEmail}`, { headers: authH() })
         .then(r => { if (r.status === 401) { clearAndRedirect(); return null; } return r.json(); })
         .then(data => {
             if (!data) return;
@@ -291,7 +384,7 @@ function selectAccount(acc) {
     //     console.log(customers)
     //     buildCustomerDropdown(customers);
     // } else {
-    fetch(`${API}/auth/customers?userId=${activeUserId}`, { headers: authH() })
+    secureFetch(`${API}/auth/customers?userId=${activeUserId}`, { headers: authH() })
         .then(async r => {
             const data = await r.json();
 
@@ -331,7 +424,7 @@ function updateCidLabel(cid) {
 
 function loadCampaigns(userId, customerId) {
     const url = buildCampaignUrl(userId, customerId);
-    fetch(url, { headers: authH() })
+    secureFetch(url, { headers: authH() })
         //.then(r => { if (r.status === 401) { clearAndRedirect(); return null; } return r.json(); })
         .then(async r => {
             if (r.status === 401) {
@@ -578,7 +671,7 @@ function clearAndRedirect() {
 }
 
 document.getElementById('btn-logout').addEventListener('click', async () => {
-    try { await fetch(`${API}/logincheck/logout`, { method: 'POST', headers: { 'x-session-token': token } }); } catch { }
+    try { await secureFetch(`${API}/logincheck/logout`, { method: 'POST', headers: { 'x-session-token': token } }); } catch { }
     clearAndRedirect();
 });
 
@@ -600,7 +693,7 @@ document.addEventListener("DOMContentLoaded", function () {
 function updateCampaign() {
     const status = document.getElementById('update-status').value;
 
-    fetch(`${API}/auth/update-campaign`, {
+    secureFetch(`${API}/auth/update-campaign`, {
         method: 'POST',
         headers: {
             ...authH(),
@@ -665,7 +758,7 @@ function openCampaignModal(campaignId) {
         return;
     }
 
-    fetch(`${API}/auth/single-campaign?campaignId=${campaignId}&userId=${activeUserId}&customerId=${activeCustomerId}`, {
+    secureFetch(`${API}/auth/single-campaign?campaignId=${campaignId}&userId=${activeUserId}&customerId=${activeCustomerId}`, {
         headers: authH(),
         method: 'GET',
     })

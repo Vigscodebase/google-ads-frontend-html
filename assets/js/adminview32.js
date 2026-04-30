@@ -16,19 +16,19 @@ function handleSessionExpiry() {
     localStorage.removeItem('sessionToken');
     localStorage.removeItem('adminEmail');
     // Hide all page content
-    const main   = document.querySelector('.main');
+    const main = document.querySelector('.main');
     const layout = document.querySelector('.layout');
-    if (main)   main.style.display   = 'none';
+    if (main) main.style.display = 'none';
     if (layout) layout.style.display = 'none';
     const modal = document.getElementById('campaign-modal');
     if (modal) modal.style.display = 'none';
 
     const toast = document.createElement('div');
     toast.style.cssText = [
-        'position:fixed','inset:0','display:flex','align-items:center',
-        'justify-content:center','background:rgba(0,0,0,0.6)',
-        'z-index:9999','color:#fff','font-size:16px','font-weight:600',
-        'font-family:sans-serif','flex-direction:column','gap:10px'
+        'position:fixed', 'inset:0', 'display:flex', 'align-items:center',
+        'justify-content:center', 'background:rgba(0,0,0,0.6)',
+        'z-index:9999', 'color:#fff', 'font-size:16px', 'font-weight:600',
+        'font-family:sans-serif', 'flex-direction:column', 'gap:10px'
     ].join(';');
     toast.innerHTML = `
         <div style="background:#1e293b;border-radius:12px;padding:28px 36px;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,0.4);">
@@ -46,19 +46,19 @@ async function secureFetch(url, options = {}) {
     if (!res.ok) {
         try {
             const clone = res.clone();
-            const body  = await clone.json();
-            const msg   = (body?.message || body?.error || '').toLowerCase();
+            const body = await clone.json();
+            const msg = (body?.message || body?.error || '').toLowerCase();
             if (msg.includes('session') && (msg.includes('expire') || msg.includes('invalid'))) {
                 handleSessionExpiry();
                 return { ok: false, status: res.status, json: async () => ({}) };
             }
-        } catch (_) {}
+        } catch (_) { }
     }
     return res;
 }
 
 /* Inject CSS for disabled dropdown items (error customers) */
-(function() {
+(function () {
     const s = document.createElement('style');
     s.textContent = `
     .ms-option-disabled { opacity: 0.72; cursor: default !important; }
@@ -152,7 +152,7 @@ function showNoFilterMessage() {
     document.getElementById('error-box').style.display = 'none';
     document.getElementById('table-inner').style.display = 'block';
 
-    const el    = document.getElementById('campaign-list');
+    const el = document.getElementById('campaign-list');
     const empty = document.getElementById('empty');
     el.innerHTML = '';
     empty.style.display = 'block';
@@ -326,7 +326,7 @@ function buildCustomerMultiSelect(container, items, selectedSet, onChange, place
 
         filtered.forEach(item => {
             const isDisabled = !!item.disabled;
-            const isChecked  = !isDisabled && (selectedSet.has('__all__') || selectedSet.has(item.value));
+            const isChecked = !isDisabled && (selectedSet.has('__all__') || selectedSet.has(item.value));
             const opt = document.createElement('div');
             opt.className = 'ms-option' + (isChecked ? ' checked' : '') + (isDisabled ? ' ms-option-disabled' : '');
             opt.dataset.value = item.value;
@@ -772,7 +772,7 @@ async function triggerReload() {
     const results = [];
     await Promise.allSettled(
         pairs.map(({ userId, cid }) =>
-            fetch(buildCampaignUrl(userId, cid), { headers: authH() })
+            secureFetch(buildCampaignUrl(userId, cid), { headers: authH() })
                 .then(async r => {
                     const data = await r.json();
                     if (!r.ok) throw data;
@@ -854,7 +854,7 @@ async function onAccountFilterChange() {
     const freshCustomers = [];
     await Promise.allSettled(
         selectedAccounts.map(acc =>
-            fetch(`${API}/auth/customers?userId=${acc.userId}`, { headers: authH() })
+            secureFetch(`${API}/auth/customers?userId=${acc.userId}`, { headers: authH() })
                 .then(async r => {
                     const d = await r.json();
                     if (!r.ok) throw d;
@@ -882,16 +882,16 @@ function buildCustomerDropdown(customers) {
             const errMsg = typeof c.error === 'string' ? c.error
                 : c.error?.message || c.error?.error?.message || 'Google API error';
             return {
-                value:    c.id,
-                label:    `❌ ${c.name || c.id}`,
-                sub:      errMsg,
+                value: c.id,
+                label: `❌ ${c.name || c.id}`,
+                sub: errMsg,
                 disabled: true
             };
         }
         return {
             value: c.id,
             label: c.name || `CID: ${c.id}`,
-            sub:   c.id
+            sub: c.id
         };
     });
 
@@ -993,7 +993,7 @@ function openCampaignModal(campaignId, userId, customerId, campaignName) {
     //footer.style.display = 'none';
     modal.style.display = 'flex';
 
-    fetch(`${API}/auth/single-campaign?campaignId=${campaignId}&userId=${userId}&customerId=${customerId}`, {
+    secureFetch(`${API}/auth/single-campaign?campaignId=${campaignId}&userId=${userId}&customerId=${customerId}`, {
         headers: authH()
     })
         .then(r => r.json())
@@ -1106,7 +1106,7 @@ document.getElementById('modal-update-btn').addEventListener('click', () => {
     const status = document.getElementById('modal-camp-status')?.value;
     if (!status || !modalCampaignId) return;
 
-    fetch(`${API}/auth/update-campaign`, {
+    secureFetch(`${API}/auth/update-campaign`, {
         method: 'POST',
         headers: { ...authH(), 'Content-Type': 'application/json' },
         body: JSON.stringify({ campaignId: modalCampaignId, status })
@@ -1153,7 +1153,7 @@ async function loadAllAccounts() {
         const allCust = [];
         await Promise.allSettled(
             allAccounts.map(acc =>
-                fetch(`${API}/auth/customers?userId=${acc.userId}`, { headers: authH() })
+                secureFetch(`${API}/auth/customers?userId=${acc.userId}`, { headers: authH() })
                     .then(async r2 => { const d = await r2.json(); if (!r2.ok) throw d; return d; })
                     .then(d => {
                         (d.customers || []).forEach(c => {
@@ -1174,6 +1174,30 @@ async function loadAllAccounts() {
     }
 }
 
+/* ── Check canAccessAdminView permission and hide nav + protect adminview URL ── */
+async function checkAdminViewAccess() {
+    try {
+        const res = await secureFetch(`${API}/auth/my-permissions`, { headers: authH() });
+        if (!res.ok) return;
+        const data = await res.json();
+
+        // super_admin always has access
+        if (data.role === 'super_admin') return;
+
+        if (!data.canAccessAdminView) {
+            // Hide admin-view nav link on all pages
+            const navLink = document.getElementById('admin-view');
+            if (navLink) navLink.style.display = 'none';
+
+            // If currently on adminview.html, redirect away
+            if (currentPage === 'adminview.html') {
+                window.location.href = 'dashboard.html';
+            }
+        }
+    } catch (err) {
+        console.error('checkAdminViewAccess error:', err);
+    }
+}
 
 /* ══════════════════════════════════════════════
    AUTH GUARD
@@ -1189,7 +1213,7 @@ if (!token) {
     const isSuperAdmin = decoded?.role === 'super_admin';
 
     // Only super admins can access this page
-    if (!isSuperAdmin) { window.location.href = 'dashboard.html'; }
+    //if (!isSuperAdmin) { window.location.href = 'dashboard.html'; }
 
     // Show super-admin-only nav items
     document.getElementById('admin-view-link').style.display = 'flex';
@@ -1203,6 +1227,7 @@ if (!token) {
 function bootstrap() {
     document.body.classList.remove('auth-pending');
     setAdminUI();
+    checkAdminViewAccess();
     wireStatusCheckboxes();
     wireCollapsibles();
     updatePeriodChip();
@@ -1218,7 +1243,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('btn-logout')?.addEventListener('click', async () => {
         try {
-            await fetch(`${API}/logincheck/logout`, { method: 'POST', headers: { 'x-session-token': token } });
+            await secureFetch(`${API}/logincheck/logout`, { method: 'POST', headers: { 'x-session-token': token } });
         } catch { }
         clearAndRedirect();
     });
